@@ -1,0 +1,6 @@
+{
+  "name": "Dynamic Invitation Card Studio",
+  "description": "Create, customize, and share dynamic event and wedding invitation cards with images, videos, schedule timelines, venue maps, and real-time RSVP management.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

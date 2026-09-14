@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "1.0.0",
+  "description": "Firestore schema for Dynamic Invitation Card Studio with users, cards, and RSVPs",
+  "entities": {
+    "users": {
+      "documentId": "userId",
+      "fields": {
+        "id": { "type": "string", "required": true },
+        "name": { "type": "string", "required": true },
+        "email": { "type": "string", "required": true },
+        "password": { "type": "string", "required": false },
+        "avatar": { "type": "string", "required": false },
+        "createdAt": { "type": "string", "required": true }
+      }
+    },
+    "cards": {
+      "documentId": "cardId",
+      "fields": {
+        "id": { "type": "string", "required": true },
+        "userId": { "type": "string", "required": true },
+        "slug": { "type": "string", "required": true },
+        "status": { "type": "string", "required": true },
+        "title": { "type": "string", "required": true },
+        "eventType": { "type": "string", "required": true },
+        "hosts": { "type": "map", "required": true },
+        "details": { "type": "map", "required": true },
+        "story": { "type": "map", "required": true },
+        "schedule": { "type": "map", "required": true },
+        "gallery": { "type": "map", "required": true },
+        "venueSection": { "type": "map", "required": true },
+        "countdown": { "type": "map", "required": true },
+        "rsvp": { "type": "map", "required": true },
+        "footer": { "type": "map", "required": true },
+        "theme": { "type": "map", "required": true },
+        "createdAt": { "type": "string", "required": true },
+        "updatedAt": { "type": "string", "required": true }
+      }
+    },
+    "rsvps": {
+      "documentId": "rsvpId",
+      "fields": {
+        "id": { "type": "string", "required": true },
+        "cardId": { "type": "string", "required": true },
+        "name": { "type": "string", "required": true },
+        "mobile": { "type": "string", "required": true },
+        "status": { "type": "string", "required": true },
+        "attendeesCount": { "type": "number", "required": false },
+        "message": { "type": "string", "required": false },
+        "createdAt": { "type": "string", "required": true }
+      }
+    }
+  }
+}

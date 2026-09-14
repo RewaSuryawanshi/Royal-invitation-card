@@ -1,0 +1,24 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // User profile accounts
+    match /users/{userId} {
+      allow read, write: if true;
+    }
+
+    // Invitation Cards:
+    // Public read so invitees can open their dynamic invitations anywhere
+    // Creators can create, update, or remove their cards
+    match /cards/{cardId} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+    // RSVPs:
+    // Invitees can create an RSVP
+    // Event owners and invitees can read and update RSVP confirmations
+    match /rsvps/{rsvpId} {
+      allow read, write: if true;
+    }
+  }
+}
