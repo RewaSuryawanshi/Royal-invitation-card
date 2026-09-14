@@ -304,7 +304,9 @@ export default function App() {
           <ClientInvitation
             card={activeCard}
             onEdit={isCurrentCardOwner ? () => handleEditCard(activeCard) : undefined}
-            onGoToAdmin={isCurrentCardOwner ? () => handleSwitchView('admin') : undefined}
+            onGoToAdmin={() => handleSwitchView('admin')}
+            onOpenAuth={() => setIsAuthModalOpen(true)}
+            onGoHome={() => handleSwitchView('home')}
             isOwner={isCurrentCardOwner}
           />
         )}

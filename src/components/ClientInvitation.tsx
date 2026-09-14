@@ -22,6 +22,8 @@ interface ClientInvitationProps {
   card: InvitationCard;
   onEdit?: () => void;
   onGoToAdmin?: () => void;
+  onOpenAuth?: () => void;
+  onGoHome?: () => void;
   isOwner?: boolean;
 }
 
@@ -29,6 +31,8 @@ export const ClientInvitation: React.FC<ClientInvitationProps> = ({
   card,
   onEdit,
   onGoToAdmin,
+  onOpenAuth,
+  onGoHome,
   isOwner = false,
 }) => {
   const { theme } = card;
@@ -152,7 +156,7 @@ export const ClientInvitation: React.FC<ClientInvitationProps> = ({
           </button>
         )}
 
-        {isOwner && onGoToAdmin && (
+        {isOwner && onGoToAdmin ? (
           <button
             type="button"
             onClick={onGoToAdmin}
@@ -165,6 +169,23 @@ export const ClientInvitation: React.FC<ClientInvitationProps> = ({
             <Sparkles className="w-3.5 h-3.5" />
             <span>Admin Portal</span>
           </button>
+        ) : (
+          onOpenAuth && (
+            <button
+              type="button"
+              onClick={onOpenAuth}
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold shadow-lg transition-all hover:scale-105 cursor-pointer"
+              style={{
+                backgroundColor: theme.gold,
+                color: theme.maroonDeep,
+                border: `1px solid ${theme.goldLight}`,
+              }}
+              title="Creator Sign In / Register"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Sign In</span>
+            </button>
+          )
         )}
       </div>
 
@@ -758,15 +779,15 @@ export const ClientInvitation: React.FC<ClientInvitationProps> = ({
           {card.footer.fineText}
         </div>
 
-        {/* Create Your Own Invitation CTA */}
-        {onGoToAdmin && (
-          <div className="pt-6 border-t border-stone-300/40 w-full max-w-sm flex flex-col items-center">
-            <span className="text-[11px] text-stone-500 uppercase tracking-widest font-medium mb-2.5">
-              Royal Digital Invitations
-            </span>
+        {/* Create Your Own Invitation / Host Sign In CTA */}
+        <div className="pt-6 border-t border-stone-300/40 w-full max-w-sm flex flex-col items-center">
+          <span className="text-[11px] text-stone-500 uppercase tracking-widest font-medium mb-2.5">
+            Royal Digital Invitations Studio
+          </span>
+          <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={onGoToAdmin}
+              onClick={onGoToAdmin || onOpenAuth}
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-semibold shadow-md transition-all hover:scale-105 hover:shadow-lg cursor-pointer"
               style={{
                 backgroundColor: theme.maroon,
@@ -775,10 +796,19 @@ export const ClientInvitation: React.FC<ClientInvitationProps> = ({
               }}
             >
               <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-              <span>Create Your Own Invitation</span>
+              <span>{isOwner ? 'Manage in Admin Portal' : 'Host / Creator Sign In'}</span>
             </button>
+            {onGoHome && (
+              <button
+                type="button"
+                onClick={onGoHome}
+                className="px-4 py-2.5 rounded-full text-xs font-medium border border-stone-300 bg-white hover:bg-stone-50 text-stone-700 transition-all cursor-pointer shadow-xs"
+              >
+                Studio Home
+              </button>
+            )}
           </div>
-        )}
+        </div>
       </footer>
 
       {/* Media Lightbox */}

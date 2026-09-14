@@ -126,9 +126,9 @@ export const StudioHome: React.FC<StudioHomeProps> = ({
             <button
               type="button"
               onClick={onOpenAuth}
-              className="text-xs sm:text-sm font-medium text-stone-700 hover:text-amber-800 transition-colors px-3 py-1.5 rounded-lg hover:bg-stone-200/50 cursor-pointer"
+              className="text-xs sm:text-sm font-semibold text-stone-800 hover:text-amber-800 bg-white hover:bg-amber-50/60 border border-stone-300 hover:border-amber-500 transition-all px-3.5 py-1.5 rounded-full shadow-xs cursor-pointer flex items-center gap-1.5"
             >
-              Sign In
+              <span>Sign In</span>
             </button>
           )}
 
