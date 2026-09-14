@@ -11,7 +11,10 @@ import {
   LogOut,
   Eye,
   EyeOff,
-  CheckCircle2
+  CheckCircle2,
+  Copy,
+  ExternalLink,
+  Sparkles
 } from 'lucide-react';
 import { User as UserType } from '../types';
 import { StorageService } from '../services/storage';
@@ -36,8 +39,37 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [copiedDomain, setCopiedDomain] = useState(false);
 
   if (!isOpen) return null;
+
+  const currentHost = typeof window !== 'undefined' ? window.location.hostname : 'royal-invitations.netlify.app';
+
+  const handleCopyDomain = () => {
+    navigator.clipboard.writeText(currentHost);
+    setCopiedDomain(true);
+    setTimeout(() => setCopiedDomain(false), 2000);
+  };
+
+  const handleQuickDemoLogin = async (demoEmail: string, demoPass: string) => {
+    setErrorMessage(null);
+    setEmail(demoEmail);
+    setPassword(demoPass);
+    setIsSubmitting(true);
+    try {
+      const result = await StorageService.loginUser(demoEmail, demoPass);
+      if (result.success && result.user) {
+        onUserChanged(result.user);
+        onClose();
+      } else {
+        setErrorMessage(result.error || 'Login failed with demo credentials.');
+      }
+    } catch (err: any) {
+      setErrorMessage(err?.message || 'Login error occurred.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const handleGoogleSignIn = async () => {
     setErrorMessage(null);
@@ -282,14 +314,62 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             </div>
 
             {errorMessage && (
-              <div className="mb-4 p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs space-y-1.5 animate-in fade-in">
+              <div className="mb-4 p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs space-y-2 animate-in fade-in">
                 <div className="flex items-start gap-2">
                   <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
                   <span className="font-medium">{errorMessage}</span>
                 </div>
+
+                {errorMessage.includes('Domain not authorized') && (
+                  <div className="mt-2 text-[11px] text-stone-700 bg-white p-3 rounded-lg border border-amber-300/80 shadow-xs space-y-2.5">
+                    <div className="font-semibold text-amber-900 flex items-center gap-1.5 text-xs">
+                      <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+                      <span>Two Quick Ways to Proceed:</span>
+                    </div>
+
+                    <div className="bg-amber-50/70 p-2.5 rounded-md border border-amber-200/60">
+                      <div className="font-semibold text-stone-900">
+                        Option 1 (Instant — No setup required):
+                      </div>
+                      <p className="text-stone-600 mt-0.5 text-[11px] leading-relaxed">
+                        Use the <strong>Email & Password</strong> form below or click the 1-click demo button. Email sign-in works immediately on any domain and stores cards directly in Firebase Firestore!
+                      </p>
+                    </div>
+
+                    <div className="bg-stone-50 p-2.5 rounded-md border border-stone-200">
+                      <div className="font-semibold text-stone-900">
+                        Option 2: Authorize this domain in Firebase Console (30 sec)
+                      </div>
+                      <p className="text-stone-500 mt-0.5 text-[11px]">
+                        Copy your site domain and add it to Firebase Authorized Domains:
+                      </p>
+                      <div className="mt-1.5 flex items-center gap-2 bg-white p-1.5 rounded border border-stone-300 font-mono text-[11px]">
+                        <span className="flex-1 truncate select-all">{currentHost}</span>
+                        <button
+                          type="button"
+                          onClick={handleCopyDomain}
+                          className="px-2 py-0.5 bg-stone-900 hover:bg-black text-white rounded text-[10px] font-sans flex items-center gap-1 shrink-0 cursor-pointer"
+                        >
+                          <Copy className="w-2.5 h-2.5" />
+                          <span>{copiedDomain ? 'Copied!' : 'Copy'}</span>
+                        </button>
+                      </div>
+                      <a
+                        href="https://console.firebase.google.com/project/optimal-star-0xjsq/authentication/settings"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-1.5 text-amber-800 hover:text-amber-950 font-semibold text-[11px] mt-2 underline underline-offset-2"
+                      >
+                        <span>Open Firebase Auth Settings</span>
+                        <ExternalLink className="w-3 h-3" />
+                      </a>
+                    </div>
+                  </div>
+                )}
+
                 {(errorMessage.includes('disabled') || errorMessage.includes('operation-not-allowed')) && (
                   <div className="text-[11px] text-stone-600 bg-white/80 p-2 rounded-lg border border-rose-200/60">
-                    💡 <strong>Tip:</strong> Google Sign-In is already active in your Firebase project! Click the <strong>Continue with Google</strong> button above to authenticate immediately.
+                    💡 <strong>Tip:</strong> Google Sign-In is active in your Firebase project!
                   </div>
                 )}
               </div>
@@ -387,26 +467,29 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               <span>Direct Firebase Authentication & Firestore Cloud Synced</span>
             </div>
 
-            {/* Demo test helper */}
-            <div className="mt-3 pt-3 border-t border-stone-100 text-[11px] text-stone-500 text-center leading-relaxed space-y-1.5">
-              <div>
-                <span>Demo credentials: </span>
-                <span className="font-mono text-stone-700 font-medium">priya.rahul@wedding.com</span>
-                <span> / </span>
-                <span className="font-mono text-stone-700 font-medium">password123</span>
-              </div>
-              <div className="flex items-center justify-center gap-2 pt-1">
+            {/* 1-Click Demo Testing */}
+            <div className="mt-3 pt-3 border-t border-stone-100 text-[11px] text-stone-500 text-center leading-relaxed space-y-2">
+              <span className="text-[10px] uppercase tracking-wider text-stone-400 font-semibold block">
+                Instant 1-Click Demo Login
+              </span>
+              <div className="flex items-center justify-center gap-2">
                 <button
                   type="button"
-                  onClick={() => {
-                    setEmail('priya.rahul@wedding.com');
-                    setPassword('password123');
-                    setName('Priya & Rahul');
-                    setErrorMessage(null);
-                  }}
-                  className="text-amber-800 hover:text-amber-950 font-medium underline underline-offset-2 cursor-pointer"
+                  disabled={isSubmitting}
+                  onClick={() => handleQuickDemoLogin('priya.rahul@wedding.com', 'password123')}
+                  className="px-2.5 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200/80 font-medium text-[11px] transition-colors cursor-pointer disabled:opacity-50"
+                  title="Sign in as Priya & Rahul"
                 >
-                  Autofill credentials
+                  👑 Priya & Rahul
+                </button>
+                <button
+                  type="button"
+                  disabled={isSubmitting}
+                  onClick={() => handleQuickDemoLogin('aarav@celebrations.com', 'password123')}
+                  className="px-2.5 py-1.5 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-800 border border-stone-300 font-medium text-[11px] transition-colors cursor-pointer disabled:opacity-50"
+                  title="Sign in as Aarav Sharma"
+                >
+                  🎉 Aarav Sharma
                 </button>
               </div>
             </div>

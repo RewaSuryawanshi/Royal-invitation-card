@@ -43,3 +43,75 @@ export const CornerMotif: React.FC<CornerMotifProps> = ({
     </svg>
   );
 };
+
+interface RoyalTitleCrestProps {
+  color?: string;
+  accentColor?: string;
+  className?: string;
+  size?: number;
+}
+
+export const RoyalTitleCrest: React.FC<RoyalTitleCrestProps> = ({
+  color = '#C9962C',
+  accentColor = '#E7C878',
+  className = '',
+  size = 54
+}) => {
+  return (
+    <div className={`flex flex-col items-center justify-center ${className}`}>
+      <svg 
+        width={size} 
+        height={size * 0.75} 
+        viewBox="0 0 80 60" 
+        fill="none" 
+        className="drop-shadow-sm transition-transform duration-300 hover:scale-105"
+      >
+        {/* Central Crown */}
+        <path 
+          d="M20 44 L25 24 L34 33 L40 18 L46 33 L55 24 L60 44 Z" 
+          fill={color} 
+          stroke={accentColor} 
+          strokeWidth="1.5" 
+          strokeLinejoin="round" 
+        />
+        {/* Crown Base */}
+        <rect x="20" y="44" width="40" height="4" rx="2" fill={accentColor} />
+        {/* Crown Jewels */}
+        <circle cx="25" cy="22" r="2.5" fill="#FFFFFF" />
+        <circle cx="40" cy="16" r="3" fill="#FFFFFF" />
+        <circle cx="55" cy="22" r="2.5" fill="#FFFFFF" />
+        <circle cx="32" cy="46" r="1.2" fill={color} />
+        <circle cx="40" cy="46" r="1.5" fill={color} />
+        <circle cx="48" cy="46" r="1.2" fill={color} />
+
+        {/* Left Laurel Flourish */}
+        <path 
+          d="M17 40 C 10 36, 6 28, 10 20 C 11 26, 16 30, 20 32" 
+          stroke={accentColor} 
+          strokeWidth="1.2" 
+          strokeLinecap="round" 
+          fill="none" 
+        />
+        <circle cx="9" cy="19" r="1.5" fill={color} />
+
+        {/* Right Laurel Flourish */}
+        <path 
+          d="M63 40 C 70 36, 74 28, 70 20 C 69 26, 64 30, 60 32" 
+          stroke={accentColor} 
+          strokeWidth="1.2" 
+          strokeLinecap="round" 
+          fill="none" 
+        />
+        <circle cx="71" cy="19" r="1.5" fill={color} />
+
+        {/* Subtle Starburst Top */}
+        <path 
+          d="M40 8 L40 12 M37 10 L43 10" 
+          stroke={accentColor} 
+          strokeWidth="1.2" 
+          strokeLinecap="round" 
+        />
+      </svg>
+    </div>
+  );
+};

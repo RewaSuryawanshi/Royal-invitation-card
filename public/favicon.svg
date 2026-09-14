@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <rect width="64" height="64" rx="16" fill="#3E1120" />
+  <!-- Golden Crown -->
+  <path d="M14 42L18 22L27 33L32 18L37 33L46 22L50 42H14Z" fill="#C9962C" stroke="#E7C878" stroke-width="2" stroke-linejoin="round" />
+  <path d="M14 42H50V46C50 47.1 49.1 48 48 48H16C14.9 48 14 47.1 14 46V42Z" fill="#E7C878" />
+  <!-- Crown Jewels -->
+  <circle cx="18" cy="20" r="2.5" fill="#FFF" />
+  <circle cx="32" cy="16" r="3" fill="#FFF" />
+  <circle cx="46" cy="20" r="2.5" fill="#FFF" />
+  <circle cx="24" cy="45" r="1.5" fill="#3E1120" />
+  <circle cx="32" cy="45" r="1.5" fill="#3E1120" />
+  <circle cx="40" cy="45" r="1.5" fill="#3E1120" />
+</svg>

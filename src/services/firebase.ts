@@ -227,9 +227,10 @@ export const FirebaseService = {
         return { success: false, error: 'Sign-in cancelled.' };
       }
       if (err?.code === 'auth/unauthorized-domain') {
+        const host = typeof window !== 'undefined' ? window.location.hostname : 'your-domain';
         return { 
           success: false, 
-          error: 'Domain not authorized for Google OAuth yet: Please use the Email & Password form below to sign up/sign in (which saves directly to your Firebase Firestore database), or add your domain (localhost) in Firebase Console -> Authentication -> Settings -> Authorized domains.' 
+          error: `Domain not authorized for Google OAuth yet: "${host}" is not added in Firebase Console -> Authentication -> Settings -> Authorized domains. You can sign in immediately using Email & Password below, or add "${host}" to your Firebase project.` 
         };
       }
       return { 

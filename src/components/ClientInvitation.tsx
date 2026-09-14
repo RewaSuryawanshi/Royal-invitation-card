@@ -14,7 +14,7 @@ import {
   ChevronDown
 } from 'lucide-react';
 import { InvitationCard, MediaItem, RSVPResponse } from '../types';
-import { OrnamentalDivider, CornerMotif } from './OrnamentalElements';
+import { OrnamentalDivider, CornerMotif, RoyalTitleCrest } from './OrnamentalElements';
 import { LightboxModal } from './LightboxModal';
 import { StorageService } from '../services/storage';
 
@@ -36,6 +36,18 @@ export const ClientInvitation: React.FC<ClientInvitationProps> = ({
   isOwner = false,
 }) => {
   const { theme } = card;
+
+  // Dynamically update document title with event/couple name and title icon
+  useEffect(() => {
+    const originalTitle = document.title;
+    const coupleName = card.hosts.person2 
+      ? `${card.hosts.person1} & ${card.hosts.person2}`
+      : card.hosts.person1;
+    document.title = `${coupleName} | ${card.title || 'Wedding & Celebration Invitation'}`;
+    return () => {
+      document.title = originalTitle;
+    };
+  }, [card.title, card.hosts.person1, card.hosts.person2]);
 
   // Media lightbox state
   const [selectedMedia, setSelectedMedia] = useState<MediaItem | null>(null);
@@ -95,7 +107,7 @@ export const ClientInvitation: React.FC<ClientInvitationProps> = ({
   };
 
   const handleShare = () => {
-    const url = window.location.href;
+    const url = `${window.location.origin}${window.location.pathname}?card=${card.id}`;
     navigator.clipboard.writeText(url).then(() => {
       setCopiedLink(true);
       setTimeout(() => setCopiedLink(false), 2500);
@@ -124,14 +136,14 @@ export const ClientInvitation: React.FC<ClientInvitationProps> = ({
         color: theme.ink,
       }}
     >
-      {/* Floating Top Bar for Quick Actions / Portal Navigation */}
+      {/* Floating Top Bar for Quick Actions - Clean guest experience */}
       <div className="fixed top-4 right-4 z-40 flex items-center gap-2">
         <button
           type="button"
           onClick={handleShare}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium backdrop-blur-md shadow-lg transition-all border cursor-pointer"
+          className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium backdrop-blur-md shadow-lg transition-all border cursor-pointer hover:scale-105"
           style={{
-            backgroundColor: 'rgba(255, 255, 255, 0.85)',
+            backgroundColor: 'rgba(255, 255, 255, 0.88)',
             color: theme.maroonDeep,
             borderColor: `${theme.gold}40`,
           }}
@@ -156,7 +168,7 @@ export const ClientInvitation: React.FC<ClientInvitationProps> = ({
           </button>
         )}
 
-        {isOwner && onGoToAdmin ? (
+        {isOwner && onGoToAdmin && (
           <button
             type="button"
             onClick={onGoToAdmin}
@@ -169,23 +181,6 @@ export const ClientInvitation: React.FC<ClientInvitationProps> = ({
             <Sparkles className="w-3.5 h-3.5" />
             <span>Admin Portal</span>
           </button>
-        ) : (
-          onOpenAuth && (
-            <button
-              type="button"
-              onClick={onOpenAuth}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold shadow-lg transition-all hover:scale-105 cursor-pointer"
-              style={{
-                backgroundColor: theme.gold,
-                color: theme.maroonDeep,
-                border: `1px solid ${theme.goldLight}`,
-              }}
-              title="Creator Sign In / Register"
-            >
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Sign In</span>
-            </button>
-          )
         )}
       </div>
 
@@ -213,6 +208,14 @@ export const ClientInvitation: React.FC<ClientInvitationProps> = ({
 
         {/* Content */}
         <div className="max-w-3xl mx-auto z-10 flex flex-col items-center">
+          {/* Royal Title Crest Emblem (Golden Crown & Laurels) */}
+          <RoyalTitleCrest 
+            color={theme.gold} 
+            accentColor={theme.goldLight} 
+            size={60} 
+            className="mb-3 animate-in fade-in zoom-in duration-700" 
+          />
+
           {card.hosts.eyebrow && (
             <span 
               className="text-xs uppercase tracking-[0.35em] font-medium mb-4"
@@ -779,36 +782,40 @@ export const ClientInvitation: React.FC<ClientInvitationProps> = ({
           {card.footer.fineText}
         </div>
 
-        {/* Create Your Own Invitation / Host Sign In CTA */}
-        <div className="pt-6 border-t border-stone-300/40 w-full max-w-sm flex flex-col items-center">
-          <span className="text-[11px] text-stone-500 uppercase tracking-widest font-medium mb-2.5">
-            Royal Digital Invitations Studio
-          </span>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={onGoToAdmin || onOpenAuth}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-semibold shadow-md transition-all hover:scale-105 hover:shadow-lg cursor-pointer"
-              style={{
-                backgroundColor: theme.maroon,
-                color: theme.ivory,
-                border: `1px solid ${theme.goldLight}`,
-              }}
-            >
-              <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-              <span>{isOwner ? 'Manage in Admin Portal' : 'Host / Creator Sign In'}</span>
-            </button>
-            {onGoHome && (
-              <button
-                type="button"
-                onClick={onGoHome}
-                className="px-4 py-2.5 rounded-full text-xs font-medium border border-stone-300 bg-white hover:bg-stone-50 text-stone-700 transition-all cursor-pointer shadow-xs"
-              >
-                Studio Home
-              </button>
-            )}
+        {/* Creator Management Controls - Only visible to authenticated owner */}
+        {isOwner && (
+          <div className="pt-6 border-t border-stone-300/40 w-full max-w-sm flex flex-col items-center">
+            <span className="text-[11px] text-stone-500 uppercase tracking-widest font-medium mb-2.5">
+              Creator Controls
+            </span>
+            <div className="flex items-center gap-2">
+              {onGoToAdmin && (
+                <button
+                  type="button"
+                  onClick={onGoToAdmin}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-semibold shadow-md transition-all hover:scale-105 hover:shadow-lg cursor-pointer"
+                  style={{
+                    backgroundColor: theme.maroon,
+                    color: theme.ivory,
+                    border: `1px solid ${theme.goldLight}`,
+                  }}
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                  <span>Manage in Admin Portal</span>
+                </button>
+              )}
+              {onGoHome && (
+                <button
+                  type="button"
+                  onClick={onGoHome}
+                  className="px-4 py-2.5 rounded-full text-xs font-medium border border-stone-300 bg-white hover:bg-stone-50 text-stone-700 transition-all cursor-pointer shadow-xs"
+                >
+                  Studio Home
+                </button>
+              )}
+            </div>
           </div>
-        </div>
+        )}
       </footer>
 
       {/* Media Lightbox */}
