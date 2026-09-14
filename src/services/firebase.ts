@@ -250,6 +250,33 @@ export const FirebaseService = {
     }
   },
 
+  /**
+   * Real-time listener for Firebase Auth changes
+   */
+  onAuthStateChange(callback: (user: User | null) => void): () => void {
+    return onAuthStateChanged(auth, async (fbUser: FirebaseUser | null) => {
+      if (fbUser) {
+        try {
+          const userDoc = await getDoc(doc(db, 'users', fbUser.uid));
+          if (userDoc.exists()) {
+            callback(userDoc.data() as User);
+            return;
+          }
+        } catch (e) {
+          console.warn('Could not read user doc on auth change:', e);
+        }
+        callback({
+          id: fbUser.uid,
+          name: fbUser.displayName || fbUser.email?.split('@')[0] || 'User',
+          email: fbUser.email || '',
+          avatar: fbUser.photoURL || undefined
+        });
+      } else {
+        callback(null);
+      }
+    });
+  },
+
   // --- INVITATION CARDS DETAILS PERSISTENCE ---
 
   /**
@@ -303,6 +330,22 @@ export const FirebaseService = {
       console.error('Error fetching cards from Firebase:', error);
       return [];
     }
+  },
+
+  /**
+   * Real-time listener for all cards belonging to a user in Firestore
+   */
+  subscribeToUserCards(userId: string, onUpdate: (cards: InvitationCard[]) => void): () => void {
+    const q = query(collection(db, 'cards'), where('userId', '==', userId));
+    return onSnapshot(q, (snap) => {
+      const cards: InvitationCard[] = [];
+      snap.forEach((d) => {
+        cards.push(d.data() as InvitationCard);
+      });
+      onUpdate(cards);
+    }, (error) => {
+      console.warn('subscribeToUserCards snapshot error:', error);
+    });
   },
 
   /**

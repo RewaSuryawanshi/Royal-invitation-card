@@ -71,6 +71,23 @@ export default function App() {
     }
   }, [currentUser]);
 
+  // Listen to Firebase Auth state in real-time
+  useEffect(() => {
+    const unsubscribe = FirebaseService.onAuthStateChange((fbUser) => {
+      if (fbUser) {
+        setCurrentUser(fbUser);
+        StorageService.setCurrentUser(fbUser);
+        StorageService.syncUserCardsFromCloud(fbUser.id).then((cards) => {
+          if (cards && cards.length > 0) {
+            setActiveCard(cards[0]);
+            setActiveCardId(cards[0].id);
+          }
+        }).catch(console.warn);
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
   // Push default sample cards, accounts & RSVPs to Firebase Firestore on start
   useEffect(() => {
     StorageService.syncAllDataToFirestore().catch(console.warn);

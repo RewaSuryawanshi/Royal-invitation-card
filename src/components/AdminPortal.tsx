@@ -69,14 +69,27 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
     }
   };
 
-  // Reload cards whenever currentUser changes and sync with Firebase
+  // Reload cards whenever currentUser changes and sync with Firebase in real time
   React.useEffect(() => {
     setUserCards(StorageService.getUserCards(currentUser.id));
+
+    // Connect real-time snapshot listener to Firestore 'cards'
+    const unsubscribe = FirebaseService.subscribeToUserCards(currentUser.id, (liveCards) => {
+      if (liveCards && liveCards.length > 0) {
+        setUserCards(liveCards);
+      }
+    });
+
+    // Initial cloud fetch & sync
     StorageService.syncUserCardsFromCloud(currentUser.id).then((cloudCards) => {
       if (cloudCards && cloudCards.length > 0) {
         setUserCards(cloudCards);
       }
     });
+
+    return () => {
+      unsubscribe();
+    };
   }, [currentUser.id]);
 
   // Real-time live RSVP subscription from Firebase Firestore
