@@ -13,7 +13,9 @@ import {
   Heart,
   ShieldCheck,
   Smartphone,
-  ChevronRight
+  ChevronRight,
+  ImagePlus,
+  Image as ImageIcon
 } from 'lucide-react';
 import { InvitationCard, User } from '../types';
 import { THEME_PRESETS, DEFAULT_RAHUL_PRIYA_CARD, DEFAULT_AARAV_CARD, StorageService } from '../services/storage';
@@ -21,7 +23,7 @@ import { THEME_PRESETS, DEFAULT_RAHUL_PRIYA_CARD, DEFAULT_AARAV_CARD, StorageSer
 interface StudioHomeProps {
   currentUser: User | null;
   onOpenAuth: () => void;
-  onStartCreate: (templateCardId?: string) => void;
+  onStartCreate: (templateCardId?: string, initialTab?: 'details' | 'story' | 'schedule' | 'media' | 'theme' | 'rsvp' | 'preview') => void;
   onViewDemo: (card: InvitationCard) => void;
   onGoToPortal: () => void;
 }
@@ -142,6 +144,16 @@ export const StudioHome: React.FC<StudioHomeProps> = ({
           
           <button
             type="button"
+            onClick={() => onStartCreate(undefined, 'media')}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold text-amber-950 bg-amber-200 hover:bg-amber-300 border border-amber-400 transition-all cursor-pointer shadow-2xs"
+            title="Upload your photos and create an invitation"
+          >
+            <ImagePlus className="w-3.5 h-3.5 text-amber-800" />
+            <span>Upload Photos</span>
+          </button>
+          
+          <button
+            type="button"
             onClick={() => onStartCreate()}
             className="inline-flex items-center gap-2 px-4 sm:px-5 py-2 rounded-full text-xs sm:text-sm font-semibold text-white bg-gradient-to-r from-amber-700 via-amber-800 to-stone-900 hover:from-amber-600 hover:to-black shadow-md hover:shadow-lg transition-all hover:scale-[1.02] cursor-pointer"
           >
@@ -173,11 +185,21 @@ export const StudioHome: React.FC<StudioHomeProps> = ({
         </p>
 
         {/* CTA Buttons */}
-        <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 max-w-md mx-auto">
+        <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 max-w-xl mx-auto">
+          <button
+            type="button"
+            onClick={() => onStartCreate(undefined, 'media')}
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-full font-semibold text-sm sm:text-base text-amber-950 bg-amber-300 hover:bg-amber-400 border border-amber-500 shadow-md hover:shadow-lg transition-all hover:scale-105 cursor-pointer"
+            title="Upload your photos and start designing your card"
+          >
+            <ImagePlus className="w-4 h-4 text-amber-900" />
+            <span>Upload Photos & Start</span>
+          </button>
+
           <button
             type="button"
             onClick={() => onStartCreate()}
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full font-semibold text-sm sm:text-base text-white bg-gradient-to-r from-amber-700 via-amber-800 to-stone-900 hover:from-amber-600 hover:to-black shadow-lg hover:shadow-xl transition-all hover:scale-105 cursor-pointer"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-full font-semibold text-sm sm:text-base text-white bg-gradient-to-r from-amber-700 via-amber-800 to-stone-900 hover:from-amber-600 hover:to-black shadow-lg hover:shadow-xl transition-all hover:scale-105 cursor-pointer"
           >
             <Sparkles className="w-4 h-4 text-amber-300" />
             <span>Start Creating for Free</span>
@@ -186,10 +208,10 @@ export const StudioHome: React.FC<StudioHomeProps> = ({
           <button
             type="button"
             onClick={() => onViewDemo(DEFAULT_RAHUL_PRIYA_CARD)}
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-full font-semibold text-sm sm:text-base text-stone-800 bg-white hover:bg-stone-50 border border-stone-300 shadow-xs hover:shadow-md transition-all cursor-pointer"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-full font-semibold text-sm sm:text-base text-stone-800 bg-white hover:bg-stone-50 border border-stone-300 shadow-xs hover:shadow-md transition-all cursor-pointer"
           >
             <Eye className="w-4 h-4 text-amber-700" />
-            <span>View Live Demo Card</span>
+            <span>View Demo</span>
           </button>
         </div>
 
@@ -270,24 +292,36 @@ export const StudioHome: React.FC<StudioHomeProps> = ({
                     {tpl.description}
                   </p>
 
-                  <div className="flex items-center gap-3 pt-4 border-t border-stone-100">
+                  <div className="pt-4 border-t border-stone-100 space-y-2">
                     <button
                       type="button"
-                      onClick={() => onStartCreate(tpl.id)}
-                      className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-xs sm:text-sm text-white bg-stone-900 hover:bg-amber-900 transition-colors cursor-pointer shadow-xs"
+                      onClick={() => onStartCreate(tpl.id, 'media')}
+                      className="w-full flex items-center justify-center gap-1.5 py-2 px-3 bg-amber-50 hover:bg-amber-100 text-amber-950 border border-amber-300 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-2xs"
+                      title="Upload your photos directly to this royal template"
                     >
-                      <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-                      <span>Use This Template</span>
+                      <ImagePlus className="w-3.5 h-3.5 text-amber-700" />
+                      <span>Upload Photos & Customize</span>
                     </button>
 
-                    <button
-                      type="button"
-                      onClick={() => onViewDemo(tpl.sampleCard)}
-                      className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl font-medium text-xs sm:text-sm text-stone-700 bg-stone-100 hover:bg-stone-200 transition-colors cursor-pointer"
-                    >
-                      <Eye className="w-3.5 h-3.5 text-stone-600" />
-                      <span>Preview</span>
-                    </button>
+                    <div className="flex items-center gap-2.5">
+                      <button
+                        type="button"
+                        onClick={() => onStartCreate(tpl.id)}
+                        className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-xs sm:text-sm text-white bg-stone-900 hover:bg-amber-900 transition-colors cursor-pointer shadow-xs"
+                      >
+                        <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                        <span>Use Template</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => onViewDemo(tpl.sampleCard)}
+                        className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl font-medium text-xs sm:text-sm text-stone-700 bg-stone-100 hover:bg-stone-200 transition-colors cursor-pointer"
+                      >
+                        <Eye className="w-3.5 h-3.5 text-stone-600" />
+                        <span>Preview</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>

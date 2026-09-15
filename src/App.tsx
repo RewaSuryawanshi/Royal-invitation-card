@@ -46,6 +46,7 @@ export default function App() {
   });
 
   const [editingCard, setEditingCard] = useState<InvitationCard | null>(null);
+  const [editorInitialTab, setEditorInitialTab] = useState<'details' | 'story' | 'schedule' | 'media' | 'theme' | 'rsvp' | 'preview'>('details');
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   // Sync activeCard if activeCardId changes (checking local cache first, then Firestore)
@@ -131,10 +132,11 @@ export default function App() {
     }
   };
 
-  const handleStartCreateFromHome = (templateId?: string) => {
+  const handleStartCreateFromHome = (templateId?: string, initialTab: 'details' | 'story' | 'schedule' | 'media' | 'theme' | 'rsvp' | 'preview' = 'details') => {
+    // Normal user or guest can create immediately without being blocked
+    const user = currentUser || StorageService.getOrCreateGuestUser();
     if (!currentUser) {
-      setIsAuthModalOpen(true);
-      return;
+      setCurrentUser(user);
     }
 
     let baseCard: InvitationCard = DEFAULT_RAHUL_PRIYA_CARD;
@@ -144,10 +146,10 @@ export default function App() {
       baseCard = {
         ...DEFAULT_RAHUL_PRIYA_CARD,
         theme: THEME_PRESETS[2],
-        title: `${currentUser.name}'s Sangeet & Reception`,
+        title: `${user.name}'s Sangeet & Reception`,
         hosts: {
           ...DEFAULT_RAHUL_PRIYA_CARD.hosts,
-          person1: currentUser.name.split(' ')[0] || 'Host',
+          person1: user.name.split(' ')[0] || 'Host',
           person2: 'Partner',
         }
       };
@@ -155,32 +157,33 @@ export default function App() {
       baseCard = {
         ...DEFAULT_RAHUL_PRIYA_CARD,
         theme: THEME_PRESETS[3],
-        title: `${currentUser.name}'s Silver Jubilee Celebration`,
+        title: `${user.name}'s Silver Jubilee Celebration`,
         hosts: {
           ...DEFAULT_RAHUL_PRIYA_CARD.hosts,
-          person1: currentUser.name,
+          person1: user.name,
           person2: '',
           tagline: 'cordially invites you to celebrate together',
         }
       };
     }
 
-    // Create fresh draft card owned by currentUser
+    // Create fresh draft card owned by user
     const newCard: InvitationCard = {
       ...baseCard,
       id: `card_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
-      userId: currentUser.id,
-      title: `${currentUser.name}'s Invitation`,
+      userId: user.id,
+      title: `${user.name}'s Invitation`,
       slug: `invitation-${Date.now()}`,
       status: 'draft',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
 
-    const saved = StorageService.saveCard(newCard, currentUser.id);
+    const saved = StorageService.saveCard(newCard, user.id);
     setEditingCard(saved);
     setActiveCard(saved);
     setActiveCardId(saved.id);
+    setEditorInitialTab(initialTab);
     setCurrentView('editor');
   };
 
@@ -193,21 +196,52 @@ export default function App() {
     window.history.pushState({ cardId: card.id }, '', newUrl);
   };
 
-  const handleEditCard = (card: InvitationCard) => {
-    if (!currentUser || card.userId !== currentUser.id) {
-      setIsAuthModalOpen(true);
-      return;
+  const handleEditCard = (
+    card: InvitationCard,
+    initialTab: 'details' | 'story' | 'schedule' | 'media' | 'theme' | 'rsvp' | 'preview' = 'details'
+  ) => {
+    // Normal user or guest can edit or customize any card immediately
+    const user = currentUser || StorageService.getOrCreateGuestUser();
+    if (!currentUser) {
+      setCurrentUser(user);
     }
-    setEditingCard(card);
+
+    if (card.userId === user.id) {
+      // User owns this card, edit directly
+      setEditingCard(card);
+      setActiveCard(card);
+      setActiveCardId(card.id);
+    } else {
+      // Normal user wants to customize this card / upload photos to it:
+      // Create a personalized copy for them immediately with all content intact!
+      const customizedCard: InvitationCard = {
+        ...card,
+        id: `card_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
+        userId: user.id,
+        title: card.title.includes('Priya') || card.title.includes('Aarav') 
+          ? `My Wedding Invitation` 
+          : `${card.title}`,
+        slug: `invitation-${Date.now()}`,
+        status: 'draft',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      const saved = StorageService.saveCard(customizedCard, user.id);
+      setEditingCard(saved);
+      setActiveCard(saved);
+      setActiveCardId(saved.id);
+    }
+
+    setEditorInitialTab(initialTab);
     setCurrentView('editor');
   };
 
   const handleSaveCard = (savedCard: InvitationCard) => {
+    const user = currentUser || StorageService.getOrCreateGuestUser();
     if (!currentUser) {
-      setIsAuthModalOpen(true);
-      return;
+      setCurrentUser(user);
     }
-    const updated = StorageService.saveCard(savedCard, currentUser.id);
+    const updated = StorageService.saveCard(savedCard, user.id);
     setEditingCard(updated);
     setActiveCard(updated);
   };
@@ -248,7 +282,7 @@ export default function App() {
         {currentView === 'client' && (
           <ClientInvitation
             card={activeCard}
-            onEdit={isCurrentCardOwner ? () => handleEditCard(activeCard) : undefined}
+            onEdit={(tab) => handleEditCard(activeCard, tab || 'details')}
             onGoToAdmin={() => handleSwitchView('admin')}
             onOpenAuth={() => setIsAuthModalOpen(true)}
             onGoHome={() => handleSwitchView('home')}
@@ -262,7 +296,7 @@ export default function App() {
               currentUser={currentUser}
               onOpenAuth={() => setIsAuthModalOpen(true)}
               onViewCard={handleViewCard}
-              onEditCard={handleEditCard}
+              onEditCard={(c, tab) => handleEditCard(c, tab || 'details')}
             />
           ) : (
             <div className="min-h-screen bg-stone-100 flex items-center justify-center p-4">
@@ -298,6 +332,7 @@ export default function App() {
         {currentView === 'editor' && editingCard && (
           <CardEditor
             initialCard={editingCard}
+            initialTab={editorInitialTab}
             onSave={handleSaveCard}
             onCancel={() => setCurrentView('admin')}
             onPreviewFull={(cardToPreview) => {

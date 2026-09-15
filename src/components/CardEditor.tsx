@@ -12,12 +12,16 @@ import {
   Clock, 
   FileText, 
   CheckCircle, 
+  CheckCircle2,
+  Share2,
   MapPin, 
   Users, 
   Sparkles,
   Upload,
   Link as LinkIcon,
-  Maximize2
+  Maximize2,
+  ImagePlus,
+  ArrowRight
 } from 'lucide-react';
 import { InvitationCard, MediaItem, ScheduleItem, ColorTheme } from '../types';
 import { THEME_PRESETS } from '../services/storage';
@@ -25,6 +29,7 @@ import { ClientInvitation } from './ClientInvitation';
 
 interface CardEditorProps {
   initialCard: InvitationCard;
+  initialTab?: 'details' | 'story' | 'schedule' | 'media' | 'theme' | 'rsvp' | 'preview';
   onSave: (card: InvitationCard) => void;
   onCancel: () => void;
   onPreviewFull: (card: InvitationCard) => void;
@@ -32,13 +37,22 @@ interface CardEditorProps {
 
 export const CardEditor: React.FC<CardEditorProps> = ({
   initialCard,
+  initialTab = 'details',
   onSave,
   onCancel,
   onPreviewFull,
 }) => {
   const [card, setCard] = useState<InvitationCard>(initialCard);
-  const [activeTab, setActiveTab] = useState<'details' | 'story' | 'schedule' | 'media' | 'theme' | 'rsvp' | 'preview'>('details');
+  const [activeTab, setActiveTab] = useState<'details' | 'story' | 'schedule' | 'media' | 'theme' | 'rsvp' | 'preview'>(initialTab);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [copiedShareLink, setCopiedShareLink] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+
+  React.useEffect(() => {
+    if (initialTab) {
+      setActiveTab(initialTab);
+    }
+  }, [initialTab]);
 
   // New Media state
   const [newMediaType, setNewMediaType] = useState<'image' | 'video'>('image');
@@ -58,6 +72,39 @@ export const CardEditor: React.FC<CardEditorProps> = ({
     onSave(card);
     setSaveSuccess(true);
     setTimeout(() => setSaveSuccess(false), 2500);
+  };
+
+  const handleShareCard = () => {
+    const shareUrl = `${window.location.origin}?card=${card.slug}`;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(shareUrl)
+        .then(() => {
+          setCopiedShareLink(true);
+          setTimeout(() => setCopiedShareLink(false), 2500);
+        })
+        .catch(() => {
+          fallbackCopy(shareUrl);
+        });
+    } else {
+      fallbackCopy(shareUrl);
+    }
+  };
+
+  const fallbackCopy = (text: string) => {
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = '0';
+    document.body.appendChild(textarea);
+    textarea.select();
+    try {
+      document.execCommand('copy');
+      setCopiedShareLink(true);
+      setTimeout(() => setCopiedShareLink(false), 2500);
+    } catch {
+      // ignore
+    }
+    document.body.removeChild(textarea);
   };
 
   // Add media item
@@ -86,20 +133,79 @@ export const CardEditor: React.FC<CardEditorProps> = ({
     setNewMediaTall(false);
   };
 
-  // Handle local file upload for image or video
+  // Handle local file upload for single or multiple files
+  const handleProcessFiles = (files: FileList | File[]) => {
+    Array.from(files).forEach((file) => {
+      const isVideo = file.type.startsWith('video');
+      const reader = new FileReader();
+      reader.onload = () => {
+        const resultUrl = reader.result as string;
+        const item: MediaItem = {
+          id: `med_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+          type: isVideo ? 'video' : 'image',
+          url: resultUrl,
+          title: file.name.replace(/\.[^/.]+$/, ''),
+        };
+        setCard((prev) => ({
+          ...prev,
+          gallery: {
+            ...prev.gallery,
+            enabled: true,
+            items: [item, ...prev.gallery.items],
+          },
+        }));
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, type: 'image' | 'video') => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      const resultUrl = reader.result as string;
-      setNewMediaType(type);
-      setNewMediaUrl(resultUrl);
-      if (!newMediaTitle) {
-        setNewMediaTitle(file.name.replace(/\.[^/.]+$/, ''));
-      }
-    };
-    reader.readAsDataURL(file);
+    if (e.target.files && e.target.files.length > 0) {
+      handleProcessFiles(e.target.files);
+    }
+  };
+
+  const handleDropMedia = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      handleProcessFiles(e.dataTransfer.files);
+    }
+  };
+
+  const handleAddSamplePhotos = () => {
+    const samples: MediaItem[] = [
+      {
+        id: `med_${Date.now()}_1`,
+        type: 'image',
+        url: 'https://images.unsplash.com/photo-1583939003579-730e3918a45a?auto=format&fit=crop&w=1000&q=80',
+        title: 'Ceremony Moments',
+        caption: 'Joyous traditional celebrations',
+        tall: true,
+      },
+      {
+        id: `med_${Date.now()}_2`,
+        type: 'image',
+        url: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1000&q=80',
+        title: 'Floral Vows',
+        caption: 'Surrounded by blossoms',
+      },
+      {
+        id: `med_${Date.now()}_3`,
+        type: 'image',
+        url: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=1000&q=80',
+        title: 'Evening Banquet',
+        caption: 'Under starry chandeliers',
+      },
+    ];
+    setCard((prev) => ({
+      ...prev,
+      gallery: {
+        ...prev.gallery,
+        enabled: true,
+        items: [...samples, ...prev.gallery.items],
+      },
+    }));
   };
 
   const handleRemoveMedia = (id: string) => {
@@ -175,7 +281,22 @@ export const CardEditor: React.FC<CardEditorProps> = ({
           </div>
         </div>
 
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex items-center gap-2 sm:gap-2.5">
+          {/* Quick Upload Jump Button - Always visible on mobile & desktop */}
+          <button
+            type="button"
+            onClick={() => setActiveTab('media')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer shadow-xs ${
+              activeTab === 'media'
+                ? 'bg-amber-600 text-white ring-2 ring-amber-400'
+                : 'bg-amber-100 text-amber-950 border border-amber-300 hover:bg-amber-200'
+            }`}
+            title="Jump directly to Photos & Videos Uploader"
+          >
+            <ImagePlus className="w-3.5 h-3.5 text-amber-700" />
+            <span>Upload Photos ({card.gallery?.items?.length || 0})</span>
+          </button>
+
           <button
             type="button"
             onClick={() => onPreviewFull(card)}
@@ -185,59 +306,111 @@ export const CardEditor: React.FC<CardEditorProps> = ({
             <span className="hidden sm:inline">Fullscreen Preview</span>
           </button>
 
+          {/* Direct Share Link button */}
+          <button
+            type="button"
+            onClick={handleShareCard}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-stone-700 bg-white border border-stone-300 hover:bg-stone-50 rounded-lg transition-all cursor-pointer shadow-2xs"
+            title="Copy Public Invitation Link"
+          >
+            {copiedShareLink ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> : <Share2 className="w-3.5 h-3.5 text-amber-600" />}
+            <span className="hidden sm:inline">{copiedShareLink ? 'Link Copied!' : 'Share'}</span>
+          </button>
+
           <button
             type="button"
             onClick={handleSave}
             className="flex items-center gap-1.5 px-4 py-1.5 text-xs font-semibold text-white bg-amber-600 hover:bg-amber-700 rounded-lg transition-all shadow-sm hover:shadow-md cursor-pointer"
           >
             {saveSuccess ? <CheckCircle className="w-4 h-4 text-white" /> : <Save className="w-4 h-4" />}
-            <span>{saveSuccess ? 'Saved!' : 'Save Changes'}</span>
+            <span>{saveSuccess ? 'Saved!' : 'Save'}</span>
           </button>
         </div>
       </header>
 
       {/* Main Body */}
       <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
-        {/* Left Side: Form Tabs & Controls */}
-        <div className="w-full lg:w-[55%] xl:w-[50%] bg-white border-r border-stone-200 flex flex-col h-[calc(100vh-61px)] overflow-y-auto">
-          {/* Navigation Tabs */}
-          <div className="flex border-b border-stone-200 overflow-x-auto bg-stone-50/70 sticky top-0 z-10 px-2">
-            {[
-              { id: 'details', label: 'Basics & Venue', icon: Calendar },
-              { id: 'theme', label: 'Theme & Colors', icon: Palette },
-              { id: 'story', label: 'Our Story', icon: FileText },
-              { id: 'media', label: 'Media (Photo & Video)', icon: ImageIcon },
-              { id: 'schedule', label: 'Timeline', icon: Clock },
-              { id: 'rsvp', label: 'RSVP & Footer', icon: Users },
-              { id: 'preview', label: 'Live Preview', icon: Eye, mobileOnly: true },
-            ].map((tab) => {
-              const Icon = tab.icon;
-              const isActive = activeTab === tab.id;
-              return (
-                <button
-                  key={tab.id}
-                  type="button"
-                  onClick={() => setActiveTab(tab.id as any)}
-                  className={`flex items-center gap-1.5 px-3.5 py-3 text-xs font-medium border-b-2 whitespace-nowrap transition-colors cursor-pointer ${
-                    tab.mobileOnly ? 'lg:hidden' : ''
-                  } ${
-                    isActive
-                      ? 'border-amber-600 text-amber-900 bg-white'
-                      : 'border-transparent text-stone-600 hover:text-stone-900 hover:bg-stone-100/50'
-                  }`}
-                >
-                  <Icon className="w-3.5 h-3.5" />
-                  <span>{tab.label}</span>
-                </button>
-              );
-            })}
+        {/* Left Side: Form Tabs & Controls (Tabs FIXED at top, content scrolls) */}
+        <div className="w-full lg:w-[55%] xl:w-[50%] bg-white border-r border-stone-200 flex flex-col h-[calc(100vh-61px)] overflow-hidden">
+          
+          {/* STATIONARY TOP TAB BAR - 100% visible, never scrolls away */}
+          <div className="shrink-0 bg-stone-50 border-b border-stone-200 px-3 py-2 z-20 shadow-2xs">
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 scrollbar-thin">
+              {[
+                { id: 'details', label: '1. Basics & Venue', icon: Calendar },
+                { id: 'theme', label: '2. Theme & Colors', icon: Palette },
+                { id: 'story', label: '3. Our Story', icon: FileText },
+                { 
+                  id: 'media', 
+                  label: '4. Photos & Videos (Upload)', 
+                  icon: ImagePlus, 
+                  isMedia: true, 
+                  count: card.gallery?.items?.length || 0 
+                },
+                { id: 'schedule', label: '5. Timeline', icon: Clock },
+                { id: 'rsvp', label: '6. RSVP & Footer', icon: Users },
+                { id: 'preview', label: 'Live Preview', icon: Eye, mobileOnly: true },
+              ].map((tab) => {
+                const Icon = tab.icon;
+                const isActive = activeTab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    onClick={() => setActiveTab(tab.id as any)}
+                    className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+                      tab.mobileOnly ? 'lg:hidden' : ''
+                    } ${
+                      isActive
+                        ? 'bg-amber-600 text-white shadow-xs'
+                        : tab.isMedia
+                        ? 'bg-amber-100 text-amber-950 border border-amber-400 hover:bg-amber-200 ring-1 ring-amber-300'
+                        : 'bg-white text-stone-700 border border-stone-200 hover:bg-stone-100 hover:text-stone-900'
+                    }`}
+                  >
+                    <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-white' : tab.isMedia ? 'text-amber-700' : 'text-stone-500'}`} />
+                    <span>{tab.label}</span>
+                    {tab.isMedia && (
+                      <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
+                        isActive ? 'bg-amber-700 text-amber-100' : 'bg-amber-300 text-amber-950'
+                      }`}>
+                        {tab.count}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
-          {/* Tab Content */}
-          <div className="p-6 space-y-6">
+          {/* Scrollable Form Content */}
+          <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-6">
             {/* ================= TAB 1: DETAILS & VENUE ================= */}
             {activeTab === 'details' && (
               <div className="space-y-6">
+                {/* Prominent Quick Jump to Upload Section at very top of Tab 1 */}
+                <div className="p-3.5 sm:p-4 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-sm flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-9 h-9 rounded-lg bg-white/20 flex items-center justify-center shrink-0">
+                      <ImagePlus className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <div className="text-xs font-bold uppercase tracking-wider text-amber-100">
+                        Photo & Video Gallery Uploader
+                      </div>
+                      <div className="text-xs text-white/95">
+                        Upload your celebration pictures, videos & reels ({card.gallery?.items?.length || 0} loaded)
+                      </div>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('media')}
+                    className="px-3.5 py-1.5 bg-white hover:bg-amber-50 text-amber-950 rounded-lg text-xs font-bold transition-all shadow-xs cursor-pointer shrink-0"
+                  >
+                    Open Uploader →
+                  </button>
+                </div>
                 <div>
                   <h3 className="text-sm font-semibold uppercase tracking-wider text-stone-500 mb-3">
                     Event Identification
@@ -485,6 +658,44 @@ export const CardEditor: React.FC<CardEditorProps> = ({
                     </div>
                   </div>
                 </div>
+
+                {/* Direct Shortcut to Upload Photos & Videos */}
+                <div className="p-4 rounded-xl bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-300 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-amber-200/90 flex items-center justify-center text-amber-800 shrink-0">
+                      <ImageIcon className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h4 className="text-xs font-bold text-amber-950 uppercase tracking-wider">
+                        Upload Photos & Videos
+                      </h4>
+                      <p className="text-xs text-amber-900/80">
+                        Add ceremony pictures, engagement photos, and video teasers to your invitation gallery ({card.gallery?.items?.length || 0} currently added).
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('media')}
+                    className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold rounded-lg shadow-sm transition-all flex items-center gap-1.5 shrink-0 cursor-pointer"
+                  >
+                    <ImagePlus className="w-3.5 h-3.5" />
+                    <span>Go to Photo & Video Tab →</span>
+                  </button>
+                </div>
+
+                {/* Bottom Step Navigation */}
+                <div className="flex justify-between items-center pt-2 border-t border-stone-200">
+                  <span className="text-xs text-stone-500">Step 1 of 6</span>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('theme')}
+                    className="inline-flex items-center gap-1 px-4 py-2 bg-stone-900 hover:bg-black text-white rounded-lg text-xs font-semibold cursor-pointer"
+                  >
+                    <span>Next: Theme & Colors</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
               </div>
             )}
 
@@ -685,25 +896,89 @@ export const CardEditor: React.FC<CardEditorProps> = ({
               </div>
             )}
 
-            {/* ================= TAB 4: DYNAMIC MEDIA (IMAGES & VIDEOS) ================= */}
+            {/* ================= TAB 4: PHOTO & VIDEO GALLERY (UPLOAD SECTION) ================= */}
             {activeTab === 'media' && (
               <div className="space-y-6">
-                <div>
-                  <h3 className="text-sm font-semibold uppercase tracking-wider text-stone-500 mb-1">
-                    Dynamic Media (Images & Videos)
-                  </h3>
-                  <p className="text-xs text-stone-500">
-                    Add photos, engagement video clips, pre-wedding teasers, or party highlights!
-                  </p>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-sm font-bold uppercase tracking-wider text-amber-900 flex items-center gap-1.5">
+                      <ImageIcon className="w-4 h-4 text-amber-600" />
+                      Photo & Video Gallery Uploader
+                    </h3>
+                    <p className="text-xs text-stone-500 mt-0.5">
+                      Add ceremony pictures, wedding teasers, engagement reels, or party highlights!
+                    </p>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={card.gallery?.enabled}
+                      onChange={(e) =>
+                        setCard({
+                          ...card,
+                          gallery: { ...card.gallery, enabled: e.target.checked },
+                        })
+                      }
+                      className="sr-only peer"
+                    />
+                    <div className="w-9 h-5 bg-stone-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-stone-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-600"></div>
+                  </label>
                 </div>
 
-                {/* Add New Media Card */}
-                <div className="p-4 rounded-xl border border-amber-200 bg-amber-50/40 space-y-3">
+                {/* Drag-and-Drop & File Picker Zone */}
+                <div 
+                  onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+                  onDragLeave={() => setIsDragging(false)}
+                  onDrop={handleDropMedia}
+                  className={`p-6 rounded-2xl border-2 border-dashed transition-all text-center ${
+                    isDragging 
+                      ? 'border-amber-600 bg-amber-100/70 scale-[1.01]' 
+                      : 'border-amber-300 bg-amber-50/60 hover:bg-amber-50'
+                  }`}
+                >
+                  <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center text-amber-700 mx-auto mb-3 shadow-xs">
+                    <Upload className="w-6 h-6" />
+                  </div>
+                  <h4 className="text-sm font-bold text-stone-900 mb-1">
+                    Upload Photos & Videos
+                  </h4>
+                  <p className="text-xs text-stone-600 mb-4 max-w-sm mx-auto">
+                    Drag and drop photos or video files here, or click to browse files from your computer or phone.
+                  </p>
+
+                  <div className="flex flex-wrap items-center justify-center gap-2.5">
+                    <label className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-all shadow-xs">
+                      <ImagePlus className="w-4 h-4" />
+                      <span>Choose Photos / Videos</span>
+                      <input
+                        type="file"
+                        multiple
+                        accept="image/*,video/*"
+                        onChange={(e) => handleFileUpload(e, 'image')}
+                        className="hidden"
+                      />
+                    </label>
+
+                    <button
+                      type="button"
+                      onClick={handleAddSamplePhotos}
+                      className="px-3 py-2 bg-white hover:bg-stone-50 border border-stone-300 text-stone-700 rounded-lg text-xs font-medium flex items-center gap-1.5 cursor-pointer transition-colors shadow-2xs"
+                      title="Quickly add 3 beautiful royal wedding photos"
+                    >
+                      <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+                      <span>Add Sample Photos</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Manual Link / URL Entry (Supports YouTube, Vimeo, Direct MP4, Web Images) */}
+                <div className="p-4 rounded-xl border border-stone-200 bg-stone-50 space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-amber-900 uppercase tracking-wider">
-                      Add New Media Item
+                    <span className="text-xs font-bold text-stone-800 uppercase tracking-wider flex items-center gap-1">
+                      <LinkIcon className="w-3.5 h-3.5 text-stone-500" />
+                      Or Paste Image / Video URL
                     </span>
-                    <div className="flex gap-2">
+                    <div className="flex gap-1.5">
                       <button
                         type="button"
                         onClick={() => setNewMediaType('image')}
@@ -731,44 +1006,32 @@ export const CardEditor: React.FC<CardEditorProps> = ({
 
                   <div>
                     <label className="block text-xs font-medium text-stone-700 mb-1">
-                      {newMediaType === 'image' ? 'Image URL or Upload' : 'Video URL (MP4, YouTube, Vimeo) or Upload'}
+                      {newMediaType === 'image' ? 'Image Web URL (or Unsplash link)' : 'Video Link (YouTube, Vimeo, or MP4 URL)'}
                     </label>
-                    <div className="flex gap-2">
-                      <input
-                        type="url"
-                        value={newMediaUrl}
-                        onChange={(e) => setNewMediaUrl(e.target.value)}
-                        className="flex-1 px-3 py-2 rounded border border-stone-300 text-xs bg-white"
-                        placeholder={
-                          newMediaType === 'image'
-                            ? 'https://images.unsplash.com/... or paste image link'
-                            : 'https://.../video.mp4 or YouTube link'
-                        }
-                      />
-                      <label className="px-3 py-2 bg-stone-200 hover:bg-stone-300 text-stone-700 rounded text-xs font-medium flex items-center gap-1 cursor-pointer transition-colors">
-                        <Upload className="w-3.5 h-3.5" />
-                        <span>File</span>
-                        <input
-                          type="file"
-                          accept={newMediaType === 'image' ? 'image/*' : 'video/*'}
-                          onChange={(e) => handleFileUpload(e, newMediaType)}
-                          className="hidden"
-                        />
-                      </label>
-                    </div>
+                    <input
+                      type="url"
+                      value={newMediaUrl}
+                      onChange={(e) => setNewMediaUrl(e.target.value)}
+                      className="w-full px-3 py-2 rounded border border-stone-300 text-xs bg-white"
+                      placeholder={
+                        newMediaType === 'image'
+                          ? 'https://images.unsplash.com/... or paste image link'
+                          : 'https://www.youtube.com/watch?v=... or https://.../video.mp4'
+                      }
+                    />
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                       <label className="block text-[11px] font-medium text-stone-700 mb-1">
-                        Title (Optional)
+                        Title / Occasion (Optional)
                       </label>
                       <input
                         type="text"
                         value={newMediaTitle}
                         onChange={(e) => setNewMediaTitle(e.target.value)}
                         className="w-full px-3 py-1.5 rounded border border-stone-300 text-xs bg-white"
-                        placeholder="e.g. Ring Ceremony"
+                        placeholder="e.g. Ring Ceremony, Sangeet Night"
                       />
                     </div>
                     <div>
@@ -780,7 +1043,7 @@ export const CardEditor: React.FC<CardEditorProps> = ({
                         value={newMediaCaption}
                         onChange={(e) => setNewMediaCaption(e.target.value)}
                         className="w-full px-3 py-1.5 rounded border border-stone-300 text-xs bg-white"
-                        placeholder="e.g. Sunset in Udaipur"
+                        placeholder="e.g. Joyful moments with cousins"
                       />
                     </div>
                   </div>
@@ -788,7 +1051,7 @@ export const CardEditor: React.FC<CardEditorProps> = ({
                   {newMediaType === 'video' && (
                     <div>
                       <label className="block text-[11px] font-medium text-stone-700 mb-1">
-                        Video Poster / Thumbnail URL (Optional)
+                        Video Poster / Thumbnail Image URL (Optional)
                       </label>
                       <input
                         type="url"
@@ -824,50 +1087,83 @@ export const CardEditor: React.FC<CardEditorProps> = ({
 
                 {/* Current Media Items List */}
                 <div className="space-y-3">
-                  <div className="text-xs font-semibold uppercase tracking-wider text-stone-500">
-                    Current Gallery Items ({card.gallery.items.length})
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold uppercase tracking-wider text-stone-600">
+                      Current Gallery Items ({card.gallery.items.length})
+                    </span>
+                    {card.gallery.items.length > 0 && (
+                      <span className="text-[11px] text-stone-500">
+                        Click on card below to preview
+                      </span>
+                    )}
                   </div>
 
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                    {card.gallery.items.map((item, idx) => (
-                      <div
-                        key={item.id}
-                        className="relative group rounded-lg overflow-hidden border border-stone-200 bg-stone-50 shadow-xs"
-                      >
-                        <div className="h-28 w-full bg-stone-200 relative">
-                          <img
-                            src={item.thumbnailUrl || item.url}
-                            alt={item.title || 'Media preview'}
-                            className="w-full h-full object-cover"
-                          />
-                          {item.type === 'video' && (
-                            <span className="absolute bottom-1.5 left-1.5 px-1.5 py-0.5 bg-black/70 text-[10px] text-amber-300 rounded font-semibold flex items-center gap-1">
-                              <Film className="w-2.5 h-2.5" /> Video
-                            </span>
-                          )}
-                          {item.tall && (
-                            <span className="absolute top-1.5 left-1.5 px-1.5 py-0.5 bg-stone-900/70 text-[10px] text-white rounded font-medium">
-                              Tall
-                            </span>
-                          )}
-                        </div>
-
-                        <div className="p-2 flex items-center justify-between">
-                          <div className="truncate text-xs font-medium text-stone-800 pr-1">
-                            {item.title || `Item #${idx + 1}`}
+                  {card.gallery.items.length === 0 ? (
+                    <div className="p-8 rounded-xl border border-dashed border-stone-300 text-center bg-stone-50">
+                      <ImageIcon className="w-8 h-8 text-stone-400 mx-auto mb-2" />
+                      <p className="text-xs text-stone-600 font-medium">No media uploaded yet</p>
+                      <p className="text-[11px] text-stone-400 mt-1">Use the upload box above or click "Add Sample Photos" to get started!</p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                      {card.gallery.items.map((item, idx) => (
+                        <div
+                          key={item.id}
+                          className="relative group rounded-lg overflow-hidden border border-stone-200 bg-stone-50 shadow-xs"
+                        >
+                          <div className="h-28 w-full bg-stone-200 relative">
+                            <img
+                              src={item.thumbnailUrl || item.url}
+                              alt={item.title || 'Media preview'}
+                              className="w-full h-full object-cover"
+                            />
+                            {item.type === 'video' && (
+                              <span className="absolute bottom-1.5 left-1.5 px-1.5 py-0.5 bg-black/70 text-[10px] text-amber-300 rounded font-semibold flex items-center gap-1">
+                                <Film className="w-2.5 h-2.5" /> Video
+                              </span>
+                            )}
+                            {item.tall && (
+                              <span className="absolute top-1.5 left-1.5 px-1.5 py-0.5 bg-stone-900/70 text-[10px] text-white rounded font-medium">
+                                Tall
+                              </span>
+                            )}
                           </div>
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveMedia(item.id)}
-                            className="p-1 text-stone-400 hover:text-rose-600 transition-colors cursor-pointer"
-                            title="Remove"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
+
+                          <div className="p-2 flex items-center justify-between">
+                            <div className="truncate text-xs font-medium text-stone-800 pr-1">
+                              {item.title || `Item #${idx + 1}`}
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveMedia(item.id)}
+                              className="p-1 text-stone-400 hover:text-rose-600 transition-colors cursor-pointer"
+                              title="Remove"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex justify-between items-center pt-2 border-t border-stone-200">
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('story')}
+                    className="px-3 py-1.5 border border-stone-300 text-stone-700 rounded-lg text-xs font-semibold cursor-pointer"
+                  >
+                    ← Back: Our Story
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('schedule')}
+                    className="inline-flex items-center gap-1 px-4 py-2 bg-stone-900 hover:bg-black text-white rounded-lg text-xs font-semibold cursor-pointer"
+                  >
+                    <span>Next: Timeline</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
                 </div>
               </div>
             )}

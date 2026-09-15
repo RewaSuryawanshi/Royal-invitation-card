@@ -18,7 +18,9 @@ import {
   UserCheck,
   FileSpreadsheet,
   Download,
-  AlertCircle
+  AlertCircle,
+  ImagePlus,
+  Image as ImageIcon
 } from 'lucide-react';
 import { User, InvitationCard, RSVPResponse } from '../types';
 import { StorageService, THEME_PRESETS, DEFAULT_RAHUL_PRIYA_CARD } from '../services/storage';
@@ -28,7 +30,7 @@ interface AdminPortalProps {
   currentUser: User;
   onOpenAuth: () => void;
   onViewCard: (card: InvitationCard) => void;
-  onEditCard: (card: InvitationCard) => void;
+  onEditCard: (card: InvitationCard, initialTab?: 'details' | 'story' | 'schedule' | 'media' | 'theme' | 'rsvp' | 'preview') => void;
 }
 
 export const AdminPortal: React.FC<AdminPortalProps> = ({
@@ -50,6 +52,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
   const [newEventType, setNewEventType] = useState<'wedding' | 'birthday' | 'anniversary' | 'gala' | 'party' | 'other'>('wedding');
   const [newPerson1, setNewPerson1] = useState('');
   const [newPerson2, setNewPerson2] = useState('');
+  const [createDestinationTab, setCreateDestinationTab] = useState<'details' | 'media'>('details');
   const [isSyncingFirebase, setIsSyncingFirebase] = useState(false);
   const [syncStatusNotice, setSyncStatusNotice] = useState<string | null>(null);
 
@@ -250,7 +253,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
     setNewTitle('');
     setNewPerson1('');
     setNewPerson2('');
-    onEditCard(saved);
+    onEditCard(saved, createDestinationTab);
   };
 
   // Aggregate stats across all cards owned by this user
@@ -546,6 +549,17 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                         </button>
                       </div>
 
+                      {/* Direct Upload Photos & Videos Button */}
+                      <button
+                        type="button"
+                        onClick={() => onEditCard(card, 'media')}
+                        className="w-full flex items-center justify-center gap-1.5 py-2 px-3 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 rounded-lg text-xs font-semibold transition-all cursor-pointer shadow-2xs"
+                        title="Direct shortcut to upload photos and videos to this card"
+                      >
+                        <ImagePlus className="w-3.5 h-3.5 text-amber-600" />
+                        <span>Upload Photos & Videos ({card.gallery?.items?.length || 0})</span>
+                      </button>
+
                       <div className="flex items-center justify-between pt-1 text-xs">
                         <button
                           type="button"
@@ -702,9 +716,21 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                 <button
                   type="submit"
                   disabled={!newPerson1.trim()}
-                  className="px-5 py-2 bg-amber-600 hover:bg-amber-700 disabled:opacity-50 text-white rounded-lg text-xs font-semibold shadow-md transition-all cursor-pointer"
+                  onClick={() => setCreateDestinationTab('media')}
+                  className="px-4 py-2 bg-amber-100 hover:bg-amber-200 border border-amber-400 text-amber-950 disabled:opacity-50 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+                  title="Create card and immediately open the Photo & Video upload studio"
                 >
-                  Create & Launch Editor
+                  <ImagePlus className="w-3.5 h-3.5 text-amber-800" />
+                  <span>Create & Upload Photos</span>
+                </button>
+
+                <button
+                  type="submit"
+                  disabled={!newPerson1.trim()}
+                  onClick={() => setCreateDestinationTab('details')}
+                  className="px-4 py-2 bg-amber-600 hover:bg-amber-700 disabled:opacity-50 text-white rounded-lg text-xs font-semibold shadow-md transition-all cursor-pointer"
+                >
+                  Create & Edit Details
                 </button>
               </div>
             </form>

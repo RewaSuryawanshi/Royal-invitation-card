@@ -11,7 +11,8 @@ import {
   Share2, 
   Edit3, 
   Sparkles,
-  ChevronDown
+  ChevronDown,
+  ImagePlus
 } from 'lucide-react';
 import { InvitationCard, MediaItem, RSVPResponse } from '../types';
 import { OrnamentalDivider, CornerMotif, RoyalTitleCrest } from './OrnamentalElements';
@@ -20,7 +21,7 @@ import { StorageService } from '../services/storage';
 
 interface ClientInvitationProps {
   card: InvitationCard;
-  onEdit?: () => void;
+  onEdit?: (tab?: 'details' | 'story' | 'schedule' | 'media' | 'theme' | 'rsvp' | 'preview') => void;
   onGoToAdmin?: () => void;
   onOpenAuth?: () => void;
   onGoHome?: () => void;
@@ -153,19 +154,36 @@ export const ClientInvitation: React.FC<ClientInvitationProps> = ({
           <span>{copiedLink ? 'Link Copied!' : 'Share'}</span>
         </button>
 
-        {isOwner && onEdit && (
-          <button
-            type="button"
-            onClick={onEdit}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium text-white shadow-lg transition-all hover:scale-105 cursor-pointer"
-            style={{
-              backgroundColor: theme.maroon,
-              border: `1px solid ${theme.goldLight}`,
-            }}
-          >
-            <Edit3 className="w-3.5 h-3.5 text-amber-300" />
-            <span>Edit Card</span>
-          </button>
+        {onEdit && (
+          <>
+            <button
+              type="button"
+              onClick={() => onEdit('media')}
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold shadow-lg transition-all hover:scale-105 cursor-pointer"
+              style={{
+                backgroundColor: theme.gold,
+                color: theme.maroonDeep,
+                border: `1px solid ${theme.goldLight}`,
+              }}
+              title={isOwner ? "Upload photos and videos to this invitation" : "Upload your photos & customize this invitation"}
+            >
+              <ImagePlus className="w-3.5 h-3.5" />
+              <span>{isOwner ? 'Upload Photos' : 'Upload Photos & Customize'}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => onEdit('details')}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium text-white shadow-lg transition-all hover:scale-105 cursor-pointer"
+              style={{
+                backgroundColor: theme.maroon,
+                border: `1px solid ${theme.goldLight}`,
+              }}
+            >
+              <Edit3 className="w-3.5 h-3.5 text-amber-300" />
+              <span>{isOwner ? 'Edit Card' : 'Customize Card'}</span>
+            </button>
+          </>
         )}
 
         {isOwner && onGoToAdmin && (
@@ -293,8 +311,78 @@ export const ClientInvitation: React.FC<ClientInvitationProps> = ({
             </div>
           </div>
 
+          {/* Quick Section Jump Navigation */}
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-2 max-w-xl">
+            {card.story?.enabled && (
+              <a
+                href="#story"
+                className="px-3.5 py-1.5 rounded-full text-xs font-medium backdrop-blur-md transition-all hover:scale-105"
+                style={{
+                  backgroundColor: 'rgba(255, 255, 255, 0.12)',
+                  color: theme.goldLight,
+                  border: `1px solid ${theme.goldLight}30`,
+                }}
+              >
+                Our Story
+              </a>
+            )}
+            {card.schedule?.enabled && card.schedule.items?.length > 0 && (
+              <a
+                href="#schedule"
+                className="px-3.5 py-1.5 rounded-full text-xs font-medium backdrop-blur-md transition-all hover:scale-105"
+                style={{
+                  backgroundColor: 'rgba(255, 255, 255, 0.12)',
+                  color: theme.goldLight,
+                  border: `1px solid ${theme.goldLight}30`,
+                }}
+              >
+                Timeline
+              </a>
+            )}
+            {card.gallery?.enabled && (
+              <a
+                href="#gallery"
+                className="px-3.5 py-1.5 rounded-full text-xs font-semibold backdrop-blur-md transition-all hover:scale-105 flex items-center gap-1.5 shadow-sm"
+                style={{
+                  backgroundColor: `${theme.gold}35`,
+                  color: theme.goldLight,
+                  border: `1px solid ${theme.goldLight}70`,
+                }}
+              >
+                <ImageIcon className="w-3.5 h-3.5" />
+                <span>Gallery & Videos ({card.gallery.items?.length || 0})</span>
+              </a>
+            )}
+            {card.venueSection?.enabled && (
+              <a
+                href="#venue"
+                className="px-3.5 py-1.5 rounded-full text-xs font-medium backdrop-blur-md transition-all hover:scale-105"
+                style={{
+                  backgroundColor: 'rgba(255, 255, 255, 0.12)',
+                  color: theme.goldLight,
+                  border: `1px solid ${theme.goldLight}30`,
+                }}
+              >
+                Venue Map
+              </a>
+            )}
+            {card.rsvp?.enabled && (
+              <a
+                href="#rsvp"
+                className="px-3.5 py-1.5 rounded-full text-xs font-medium backdrop-blur-md transition-all hover:scale-105"
+                style={{
+                  backgroundColor: 'rgba(255, 255, 255, 0.12)',
+                  color: theme.goldLight,
+                  border: `1px solid ${theme.goldLight}30`,
+                }}
+              >
+                RSVP
+              </a>
+            )}
+          </div>
+
           <div 
-            className="mt-8 text-xs uppercase tracking-[0.25em] flex flex-col items-center gap-2 animate-bounce font-light"
+            className="mt-6 text-xs uppercase tracking-[0.25em] flex flex-col items-center gap-2 animate-bounce font-light"
             style={{ color: theme.goldLight }}
           >
             <span>Scroll to explore</span>
@@ -305,7 +393,7 @@ export const ClientInvitation: React.FC<ClientInvitationProps> = ({
 
       {/* ================= OUR STORY ================= */}
       {card.story.enabled && (
-        <section className="py-20 px-6 sm:px-12 max-w-3xl mx-auto text-center">
+        <section id="story" className="py-20 px-6 sm:px-12 max-w-3xl mx-auto text-center scroll-mt-6">
           <span 
             className="text-xs uppercase tracking-[0.35em] font-medium"
             style={{ color: theme.gold }}
@@ -331,7 +419,8 @@ export const ClientInvitation: React.FC<ClientInvitationProps> = ({
       {/* ================= SCHEDULE / TIMELINE ================= */}
       {card.schedule.enabled && card.schedule.items.length > 0 && (
         <section 
-          className="py-20 px-6 sm:px-12 text-center"
+          id="schedule"
+          className="py-20 px-6 sm:px-12 text-center scroll-mt-6"
           style={{
             backgroundColor: theme.maroon,
             color: theme.ivory,
@@ -383,8 +472,8 @@ export const ClientInvitation: React.FC<ClientInvitationProps> = ({
       )}
 
       {/* ================= GALLERY & DYNAMIC MEDIA (IMAGES & VIDEOS) ================= */}
-      {card.gallery.enabled && card.gallery.items.length > 0 && (
-        <section className="py-20 px-6 sm:px-12 max-w-6xl mx-auto">
+      {card.gallery?.enabled && card.gallery.items?.length > 0 ? (
+        <section id="gallery" className="py-20 px-6 sm:px-12 max-w-6xl mx-auto scroll-mt-6">
           <div className="text-center mb-8">
             <span 
               className="text-xs uppercase tracking-[0.35em] font-medium block mb-2"
@@ -399,46 +488,60 @@ export const ClientInvitation: React.FC<ClientInvitationProps> = ({
               {card.gallery.title}
             </h2>
 
-            {/* Filter Tabs if both photos and videos exist */}
-            {hasVideos && (
-              <div className="flex justify-center items-center gap-2 mt-6">
+            {/* Filter Tabs and Owner Upload Button */}
+            <div className="flex flex-wrap justify-center items-center gap-2 mt-6">
+              {hasVideos && (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => setMediaFilter('all')}
+                    className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${
+                      mediaFilter === 'all' 
+                        ? 'bg-amber-600 text-white shadow-md' 
+                        : 'bg-stone-200/60 text-stone-700 hover:bg-stone-200'
+                    }`}
+                  >
+                    All Media ({card.gallery.items.length})
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setMediaFilter('image')}
+                    className={`flex items-center gap-1 px-4 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${
+                      mediaFilter === 'image' 
+                        ? 'bg-amber-600 text-white shadow-md' 
+                        : 'bg-stone-200/60 text-stone-700 hover:bg-stone-200'
+                    }`}
+                  >
+                    <ImageIcon className="w-3.5 h-3.5" />
+                    Photos
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setMediaFilter('video')}
+                    className={`flex items-center gap-1 px-4 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${
+                      mediaFilter === 'video' 
+                        ? 'bg-amber-600 text-white shadow-md' 
+                        : 'bg-stone-200/60 text-stone-700 hover:bg-stone-200'
+                    }`}
+                  >
+                    <Play className="w-3.5 h-3.5" />
+                    Videos
+                  </button>
+                </>
+              )}
+
+              {onEdit && (
                 <button
                   type="button"
-                  onClick={() => setMediaFilter('all')}
-                  className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${
-                    mediaFilter === 'all' 
-                      ? 'bg-amber-600 text-white shadow-md' 
-                      : 'bg-stone-200/60 text-stone-700 hover:bg-stone-200'
-                  }`}
+                  onClick={() => onEdit('media')}
+                  className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-semibold bg-amber-600 hover:bg-amber-700 text-white shadow-sm transition-all hover:scale-105 cursor-pointer"
+                  title={isOwner ? "Upload more photos and videos" : "Upload your own photos & customize this gallery"}
                 >
-                  All Media ({card.gallery.items.length})
+                  <ImagePlus className="w-3.5 h-3.5" />
+                  <span>{isOwner ? '+ Upload Photos & Videos' : '+ Upload Your Photos'}</span>
                 </button>
-                <button
-                  type="button"
-                  onClick={() => setMediaFilter('image')}
-                  className={`flex items-center gap-1 px-4 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${
-                    mediaFilter === 'image' 
-                      ? 'bg-amber-600 text-white shadow-md' 
-                      : 'bg-stone-200/60 text-stone-700 hover:bg-stone-200'
-                  }`}
-                >
-                  <ImageIcon className="w-3.5 h-3.5" />
-                  Photos
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setMediaFilter('video')}
-                  className={`flex items-center gap-1 px-4 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${
-                    mediaFilter === 'video' 
-                      ? 'bg-amber-600 text-white shadow-md' 
-                      : 'bg-stone-200/60 text-stone-700 hover:bg-stone-200'
-                  }`}
-                >
-                  <Play className="w-3.5 h-3.5" />
-                  Videos
-                </button>
-              </div>
-            )}
+              )}
+            </div>
           </div>
 
           {/* Media Grid */}
@@ -484,12 +587,35 @@ export const ClientInvitation: React.FC<ClientInvitationProps> = ({
             })}
           </div>
         </section>
-      )}
+      ) : isOwner && card.gallery?.enabled ? (
+        <section id="gallery" className="py-16 px-6 sm:px-12 max-w-3xl mx-auto text-center scroll-mt-6">
+          <div className="p-8 rounded-2xl border-2 border-dashed border-amber-300/80 bg-amber-50/50 text-center">
+            <ImageIcon className="w-10 h-10 text-amber-600 mx-auto mb-3" />
+            <h3 className="font-serif text-2xl font-medium" style={{ color: theme.maroon }}>
+              Photo & Video Gallery Section
+            </h3>
+            <p className="text-xs text-stone-600 mt-2 max-w-md mx-auto leading-relaxed">
+              This section displays your event photos and video clips. Click below to add your engagement pictures, ceremony highlights, or teaser videos.
+            </p>
+            {onEdit && (
+              <button
+                type="button"
+                onClick={onEdit}
+                className="mt-4 inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-semibold text-white bg-amber-600 hover:bg-amber-700 shadow-sm transition-all cursor-pointer"
+              >
+                <Edit3 className="w-3.5 h-3.5" />
+                <span>Add Photos & Videos to Gallery</span>
+              </button>
+            )}
+          </div>
+        </section>
+      ) : null}
 
       {/* ================= VENUE & MAP ================= */}
       {card.venueSection.enabled && (
         <section 
-          className="py-20 px-6 sm:px-12"
+          id="venue"
+          className="py-20 px-6 sm:px-12 scroll-mt-6"
           style={{
             backgroundColor: theme.teal,
             color: theme.ivory,
@@ -601,7 +727,8 @@ export const ClientInvitation: React.FC<ClientInvitationProps> = ({
       {/* ================= RSVP SECTION ================= */}
       {card.rsvp.enabled && (
         <section 
-          className="py-20 px-6 sm:px-12"
+          id="rsvp"
+          className="py-20 px-6 sm:px-12 scroll-mt-6"
           style={{
             backgroundColor: theme.maroonDeep,
             color: theme.ivory,

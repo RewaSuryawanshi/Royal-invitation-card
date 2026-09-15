@@ -350,6 +350,22 @@ export const StorageService = {
     return null;
   },
 
+  getOrCreateGuestUser(): User {
+    const existing = this.getCurrentUser();
+    if (existing) return existing;
+
+    const guestId = `user_${Date.now().toString(36)}_${Math.random().toString(36).substr(2, 4)}`;
+    const guestUser: User = {
+      id: guestId,
+      name: 'Card Creator',
+      email: `creator_${guestId.slice(-6)}@royalinvites.com`,
+      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80',
+    };
+    this.cacheUser(guestUser);
+    this.setCurrentUser(guestUser);
+    return guestUser;
+  },
+
   setCurrentUser(user: User | null): void {
     if (user) {
       localStorage.setItem(STORAGE_KEYS.CURRENT_USER_ID, user.id);
