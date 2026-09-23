@@ -12,13 +12,20 @@ import {
   Edit3, 
   Sparkles,
   ChevronDown,
-  ImagePlus
+  ImagePlus,
+  Layers,
+  Grid,
+  Flame,
+  Maximize2
 } from 'lucide-react';
 import { InvitationCard, MediaItem, RSVPResponse, ColorTheme } from '../types';
 import { OrnamentalDivider, CornerMotif, RoyalTitleCrest } from './OrnamentalElements';
 import { LightboxModal } from './LightboxModal';
 import { StorageService, THEME_PRESETS } from '../services/storage';
 import { ThreeDThemeLayer } from './ThreeDThemeLayer';
+import { ThreeDCard } from './ThreeDCard';
+import { ThreeDParticleCanvas } from './ThreeDParticleCanvas';
+import { ThreeDGalleryStage } from './ThreeDGalleryStage';
 
 interface ClientInvitationProps {
   card: InvitationCard;
@@ -74,6 +81,7 @@ export const ClientInvitation: React.FC<ClientInvitationProps> = ({
   // Media lightbox state
   const [selectedMedia, setSelectedMedia] = useState<MediaItem | null>(null);
   const [mediaFilter, setMediaFilter] = useState<'all' | 'image' | 'video'>('all');
+  const [galleryViewMode, setGalleryViewMode] = useState<'grid' | 'stage'>('grid');
 
   // RSVP Form State
   const [guestName, setGuestName] = useState('');
@@ -524,52 +532,144 @@ export const ClientInvitation: React.FC<ClientInvitationProps> = ({
       {card.schedule.enabled && card.schedule.items.length > 0 && (
         <section 
           id="schedule"
-          className="py-20 px-6 sm:px-12 text-center scroll-mt-6"
+          className="relative py-20 px-4 sm:px-12 text-center scroll-mt-6 overflow-hidden"
           style={{
             backgroundColor: theme.maroon,
             color: theme.ivory,
           }}
         >
-          <div className="max-w-2xl mx-auto">
+          {/* 3D Atmospheric Floating Theme Particles */}
+          <ThreeDParticleCanvas theme={theme} density="subtle" />
+
+          {/* Radial depth glow behind schedule */}
+          <div 
+            className="absolute inset-0 pointer-events-none opacity-40"
+            style={{
+              background: `radial-gradient(circle 600px at 50% 30%, ${theme.gold}25 0%, transparent 70%)`
+            }}
+          />
+
+          <div className="max-w-4xl mx-auto relative z-10">
             <span 
               className="text-xs uppercase tracking-[0.35em] font-medium block"
               style={{ color: theme.gold }}
             >
               {card.schedule.eyebrow}
             </span>
-            <h2 className="font-serif text-3xl sm:text-4xl italic mt-3 mb-12">
+            <h2 className="font-serif text-3xl sm:text-5xl italic mt-3 mb-14">
               {card.schedule.title}
             </h2>
 
-            {/* Timeline Items */}
-            <div className="relative text-left ml-4 sm:ml-8 pl-8 border-l border-amber-300/30 space-y-10">
-              {card.schedule.items.map((item) => (
-                <div key={item.id} className="relative group">
-                  {/* Timeline Dot */}
-                  <div 
-                    className="absolute -left-[39px] top-1.5 w-3.5 h-3.5 rounded-full border-2 border-white/80 shadow-md transition-transform group-hover:scale-125"
-                    style={{ backgroundColor: theme.gold }}
-                  />
-                  <div 
-                    className="font-serif text-sm tracking-wider font-semibold"
-                    style={{ color: theme.goldLight }}
-                  >
-                    {item.time}
-                  </div>
-                  <h3 className="font-serif text-xl sm:text-2xl font-medium text-white mt-0.5 mb-1">
-                    {item.title}
-                  </h3>
-                  <p className="text-sm text-amber-50/80 leading-relaxed font-light">
-                    {item.desc}
-                  </p>
-                  {item.location && (
-                    <div className="flex items-center gap-1 text-xs text-amber-200/70 mt-1.5">
-                      <MapPin className="w-3 h-3" />
-                      <span>{item.location}</span>
+            {/* 3D Timeline Container */}
+            <div className="relative">
+              {/* Central Glowing Laser-Gold Spine */}
+              <div 
+                className="absolute left-6 md:left-1/2 top-4 bottom-4 -translate-x-1/2 w-1 md:w-1.5 rounded-full z-0"
+                style={{
+                  background: `linear-gradient(to bottom, ${theme.goldLight}40, ${theme.gold} 20%, ${theme.goldLight} 50%, ${theme.gold} 80%, ${theme.goldLight}30)`,
+                  boxShadow: `0 0 16px ${theme.gold}90, 0 0 30px ${theme.gold}40`,
+                }}
+              >
+                {/* Flowing animated light beam down spine */}
+                <div className="w-full h-24 bg-gradient-to-b from-transparent via-white to-transparent rounded-full animate-pulse opacity-70" />
+              </div>
+
+              {/* Timeline Events */}
+              <div className="space-y-10 md:space-y-12">
+                {card.schedule.items.map((item, idx) => {
+                  const isEven = idx % 2 === 0;
+
+                  return (
+                    <div 
+                      key={item.id} 
+                      className={`relative flex items-center md:items-stretch ${
+                        isEven ? 'md:flex-row-reverse' : 'md:flex-row'
+                      }`}
+                    >
+                      {/* Event 3D Card */}
+                      <div className="w-full pl-14 md:pl-0 md:w-[46%]">
+                        <ThreeDCard 
+                          depth={10} 
+                          scale={1.02} 
+                          glare={true}
+                          className="rounded-2xl"
+                        >
+                          <div 
+                            className="relative p-5 sm:p-6 rounded-2xl backdrop-blur-md border text-left shadow-2xl transition-all duration-300 overflow-hidden"
+                            style={{
+                              backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                              borderColor: `${theme.goldLight}45`,
+                              transformStyle: 'preserve-3d',
+                            }}
+                          >
+                            {/* Ornamental Corner Brackets */}
+                            <div className="absolute top-2 left-2 w-3 h-3 border-t-2 border-l-2 border-amber-300/60 pointer-events-none" />
+                            <div className="absolute top-2 right-2 w-3 h-3 border-t-2 border-r-2 border-amber-300/60 pointer-events-none" />
+                            <div className="absolute bottom-2 left-2 w-3 h-3 border-b-2 border-l-2 border-amber-300/60 pointer-events-none" />
+                            <div className="absolute bottom-2 right-2 w-3 h-3 border-b-2 border-r-2 border-amber-300/60 pointer-events-none" />
+
+                            {/* Floating Time Pill (TranslateZ 28px) */}
+                            <div 
+                              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider mb-2.5 shadow-md"
+                              style={{
+                                transform: 'translateZ(28px)',
+                                backgroundColor: `${theme.gold}`,
+                                color: '#1A0C08',
+                              }}
+                            >
+                              <Clock className="w-3 h-3" />
+                              <span>{item.time}</span>
+                            </div>
+
+                            {/* Title (TranslateZ 22px) */}
+                            <h3 
+                              className="font-serif text-xl sm:text-2xl font-semibold text-white tracking-wide mb-2 drop-shadow"
+                              style={{ transform: 'translateZ(22px)' }}
+                            >
+                              {item.title}
+                            </h3>
+
+                            {/* Description (TranslateZ 16px) */}
+                            <p 
+                              className="text-xs sm:text-sm leading-relaxed font-light text-amber-100/85"
+                              style={{ transform: 'translateZ(16px)' }}
+                            >
+                              {item.desc}
+                            </p>
+
+                            {/* Location Tag (TranslateZ 20px) */}
+                            {item.location && (
+                              <div 
+                                className="mt-3.5 inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-lg bg-black/35 border border-white/10 text-amber-200"
+                                style={{ transform: 'translateZ(20px)' }}
+                              >
+                                <MapPin className="w-3 h-3 text-amber-400" />
+                                <span>{item.location}</span>
+                              </div>
+                            )}
+                          </div>
+                        </ThreeDCard>
+                      </div>
+
+                      {/* 3D Central Milestone Medallion */}
+                      <div className="absolute left-6 md:left-1/2 -translate-x-1/2 flex items-center justify-center z-10">
+                        <div 
+                          className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-amber-300 flex items-center justify-center text-amber-300 shadow-xl transition-transform hover:scale-110"
+                          style={{
+                            backgroundColor: '#1c0e08',
+                            boxShadow: `0 0 20px ${theme.gold}80, inset 0 0 10px rgba(0,0,0,0.8)`,
+                          }}
+                        >
+                          <Flame className="w-4 h-4 sm:w-5 sm:h-5 text-amber-400 fill-amber-400/80 animate-pulse" />
+                        </div>
+                      </div>
+
+                      {/* Spacer for alternating desktop column */}
+                      <div className="hidden md:block md:w-[46%]" />
                     </div>
-                  )}
-                </div>
-              ))}
+                  );
+                })}
+              </div>
             </div>
           </div>
         </section>
@@ -577,8 +677,11 @@ export const ClientInvitation: React.FC<ClientInvitationProps> = ({
 
       {/* ================= GALLERY & DYNAMIC MEDIA (IMAGES & VIDEOS) ================= */}
       {card.gallery?.enabled && card.gallery.items?.length > 0 ? (
-        <section id="gallery" className="py-20 px-6 sm:px-12 max-w-6xl mx-auto scroll-mt-6">
-          <div className="text-center mb-8">
+        <section id="gallery" className="relative py-20 px-4 sm:px-12 max-w-6xl mx-auto scroll-mt-6 overflow-hidden">
+          {/* 3D Atmospheric Floating Theme Particles in Gallery */}
+          <ThreeDParticleCanvas theme={theme} density="subtle" />
+
+          <div className="text-center mb-8 relative z-10">
             <span 
               className="text-xs uppercase tracking-[0.35em] font-medium block mb-2"
               style={{ color: theme.gold }}
@@ -586,31 +689,61 @@ export const ClientInvitation: React.FC<ClientInvitationProps> = ({
               {card.gallery.eyebrow}
             </span>
             <h2 
-              className="font-serif text-3xl sm:text-4xl italic"
+              className="font-serif text-3xl sm:text-5xl italic"
               style={{ color: theme.maroon }}
             >
               {card.gallery.title}
             </h2>
 
-            {/* Filter Tabs and Owner Upload Button */}
-            <div className="flex flex-wrap justify-center items-center gap-2 mt-6">
+            {/* Filter Tabs & 3D View Mode Switcher */}
+            <div className="flex flex-wrap justify-center items-center gap-2 sm:gap-3 mt-6">
+              {/* 3D Mode Toggle */}
+              <div className="flex items-center p-1 rounded-full bg-stone-200/80 border border-stone-300 shadow-xs mr-2">
+                <button
+                  type="button"
+                  onClick={() => setGalleryViewMode('grid')}
+                  className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+                    galleryViewMode === 'grid'
+                      ? 'bg-stone-900 text-amber-200 shadow-sm'
+                      : 'text-stone-700 hover:text-stone-950'
+                  }`}
+                  title="Interactive 3D Tilt Grid"
+                >
+                  <Grid className="w-3.5 h-3.5" />
+                  <span>3D Grid</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setGalleryViewMode('stage')}
+                  className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+                    galleryViewMode === 'stage'
+                      ? 'bg-stone-900 text-amber-200 shadow-sm'
+                      : 'text-stone-700 hover:text-stone-950'
+                  }`}
+                  title="Interactive 3D Stage Flow"
+                >
+                  <Layers className="w-3.5 h-3.5" />
+                  <span>3D Stage</span>
+                </button>
+              </div>
+
               {hasVideos && (
                 <>
                   <button
                     type="button"
                     onClick={() => setMediaFilter('all')}
-                    className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${
+                    className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${
                       mediaFilter === 'all' 
                         ? 'bg-amber-600 text-white shadow-md' 
                         : 'bg-stone-200/60 text-stone-700 hover:bg-stone-200'
                     }`}
                   >
-                    All Media ({card.gallery.items.length})
+                    All ({card.gallery.items.length})
                   </button>
                   <button
                     type="button"
                     onClick={() => setMediaFilter('image')}
-                    className={`flex items-center gap-1 px-4 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${
+                    className={`flex items-center gap-1 px-3.5 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${
                       mediaFilter === 'image' 
                         ? 'bg-amber-600 text-white shadow-md' 
                         : 'bg-stone-200/60 text-stone-700 hover:bg-stone-200'
@@ -622,7 +755,7 @@ export const ClientInvitation: React.FC<ClientInvitationProps> = ({
                   <button
                     type="button"
                     onClick={() => setMediaFilter('video')}
-                    className={`flex items-center gap-1 px-4 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${
+                    className={`flex items-center gap-1 px-3.5 py-1.5 rounded-full text-xs font-medium transition-all cursor-pointer ${
                       mediaFilter === 'video' 
                         ? 'bg-amber-600 text-white shadow-md' 
                         : 'bg-stone-200/60 text-stone-700 hover:bg-stone-200'
@@ -638,58 +771,113 @@ export const ClientInvitation: React.FC<ClientInvitationProps> = ({
                 <button
                   type="button"
                   onClick={() => onEdit('media')}
-                  className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-semibold bg-amber-600 hover:bg-amber-700 text-white shadow-sm transition-all hover:scale-105 cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-semibold bg-amber-600 hover:bg-amber-700 text-white shadow-sm transition-all hover:scale-105 cursor-pointer ml-auto sm:ml-2"
                   title={isOwner ? "Upload more photos and videos" : "Upload your own photos & customize this gallery"}
                 >
                   <ImagePlus className="w-3.5 h-3.5" />
-                  <span>{isOwner ? '+ Upload Photos & Videos' : '+ Upload Your Photos'}</span>
+                  <span>{isOwner ? '+ Upload Media' : '+ Add Photos'}</span>
                 </button>
               )}
             </div>
           </div>
 
-          {/* Media Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4 auto-rows-[160px] sm:auto-rows-[220px]">
-            {filteredMedia.map((item) => {
-              const isVideo = item.type === 'video';
-              const displayThumb = item.thumbnailUrl || (isVideo ? 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=600&q=80' : item.url);
+          {/* Conditional 3D View Render */}
+          {galleryViewMode === 'stage' ? (
+            <div className="relative z-10">
+              <ThreeDGalleryStage 
+                items={filteredMedia}
+                theme={theme}
+                onSelectMedia={setSelectedMedia}
+              />
+            </div>
+          ) : (
+            /* 3D Tilt Grid */
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-5 auto-rows-[170px] sm:auto-rows-[230px] relative z-10">
+              {filteredMedia.map((item) => {
+                const isVideo = item.type === 'video';
+                const displayThumb = item.thumbnailUrl || (isVideo ? 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=600&q=80' : item.url);
 
-              return (
-                <div
-                  key={item.id}
-                  onClick={() => setSelectedMedia(item)}
-                  className={`group relative overflow-hidden rounded-xl sm:rounded-2xl cursor-pointer shadow-sm hover:shadow-xl transition-all duration-300 border border-stone-200/50 ${
-                    item.tall ? 'row-span-2' : 'row-span-1'
-                  }`}
-                >
-                  <img
-                    src={displayThumb}
-                    alt={item.title || item.caption || 'Celebration media'}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 filter saturate-90 group-hover:saturate-110"
-                    loading="lazy"
-                  />
+                return (
+                  <ThreeDCard
+                    key={item.id}
+                    depth={12}
+                    scale={1.03}
+                    glare={true}
+                    onClick={() => setSelectedMedia(item)}
+                    className={`cursor-pointer rounded-xl sm:rounded-2xl ${
+                      item.tall ? 'row-span-2' : 'row-span-1'
+                    }`}
+                  >
+                    <div 
+                      className="relative w-full h-full rounded-xl sm:rounded-2xl overflow-hidden border border-amber-300/30 shadow-md group"
+                      style={{ transformStyle: 'preserve-3d' }}
+                    >
+                      {/* Image */}
+                      <img
+                        src={displayThumb}
+                        alt={item.title || item.caption || 'Celebration media'}
+                        className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-700 filter saturate-95 group-hover:saturate-110"
+                        loading="lazy"
+                      />
 
-                  {/* Gradient Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-90 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-2.5 sm:p-4 text-white">
-                    {item.title && <h4 className="font-serif text-xs sm:text-base font-medium line-clamp-1">{item.title}</h4>}
-                    {item.caption && <p className="text-[10px] sm:text-xs text-stone-300 mt-0.5 line-clamp-1">{item.caption}</p>}
-                  </div>
+                      {/* 3D Floating Ornamental Corners at translateZ(20px) */}
+                      <div 
+                        className="absolute top-2 left-2 w-3.5 h-3.5 border-t-2 border-l-2 border-amber-300/80 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity"
+                        style={{ transform: 'translateZ(20px)' }}
+                      />
+                      <div 
+                        className="absolute top-2 right-2 w-3.5 h-3.5 border-t-2 border-r-2 border-amber-300/80 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity"
+                        style={{ transform: 'translateZ(20px)' }}
+                      />
+                      <div 
+                        className="absolute bottom-2 left-2 w-3.5 h-3.5 border-b-2 border-l-2 border-amber-300/80 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity"
+                        style={{ transform: 'translateZ(20px)' }}
+                      />
+                      <div 
+                        className="absolute bottom-2 right-2 w-3.5 h-3.5 border-b-2 border-r-2 border-amber-300/80 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity"
+                        style={{ transform: 'translateZ(20px)' }}
+                      />
 
-                  {/* Video Indicator Badge */}
-                  {isVideo && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/25 group-hover:bg-black/10 transition-colors">
-                      <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black/60 backdrop-blur-sm border border-amber-300/60 flex items-center justify-center text-amber-300 shadow-lg group-hover:scale-115 transition-transform">
-                        <Play className="w-4 h-4 sm:w-5 sm:h-5 fill-amber-300 ml-0.5" />
+                      {/* 3D Floating Title Overlay at translateZ(28px) */}
+                      <div 
+                        className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent opacity-90 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-3 sm:p-4 text-white pointer-events-none"
+                        style={{ transform: 'translateZ(28px)' }}
+                      >
+                        {item.title && (
+                          <h4 className="font-serif text-xs sm:text-base font-semibold text-amber-100 drop-shadow line-clamp-1">
+                            {item.title}
+                          </h4>
+                        )}
+                        {item.caption && (
+                          <p className="text-[10px] sm:text-xs text-stone-300 mt-0.5 line-clamp-1 font-light">
+                            {item.caption}
+                          </p>
+                        )}
                       </div>
-                      <span className="absolute bottom-2 left-2 sm:bottom-3 sm:left-3 px-1.5 sm:px-2 py-0.5 rounded bg-black/70 text-[9px] sm:text-[10px] uppercase tracking-wider font-semibold text-amber-300 backdrop-blur-xs flex items-center gap-1">
-                        <Play className="w-2 h-2 sm:w-2.5 sm:h-2.5 fill-current" /> Video
-                      </span>
+
+                      {/* 3D Floating Video Indicator at translateZ(42px) */}
+                      {isVideo && (
+                        <div 
+                          className="absolute inset-0 flex items-center justify-center pointer-events-none"
+                          style={{ transform: 'translateZ(42px)' }}
+                        >
+                          <div className="w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-black/60 backdrop-blur-md border border-amber-300 flex items-center justify-center text-amber-300 shadow-[0_10px_25px_rgba(0,0,0,0.6)] group-hover:scale-115 transition-transform">
+                            <Play className="w-4 h-4 sm:w-5 sm:h-5 fill-amber-300 ml-0.5" />
+                          </div>
+                          <span 
+                            className="absolute bottom-2.5 left-2.5 sm:bottom-3 sm:left-3 px-2 py-0.5 rounded bg-black/70 text-[9px] sm:text-[10px] uppercase tracking-wider font-semibold text-amber-300 backdrop-blur-xs flex items-center gap-1 border border-amber-300/30"
+                            style={{ transform: 'translateZ(20px)' }}
+                          >
+                            <Play className="w-2 h-2 sm:w-2.5 sm:h-2.5 fill-current" /> Video
+                          </span>
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
+                  </ThreeDCard>
+                );
+              })}
+            </div>
+          )}
         </section>
       ) : isOwner && card.gallery?.enabled ? (
         <section id="gallery" className="py-16 px-6 sm:px-12 max-w-3xl mx-auto text-center scroll-mt-6">
