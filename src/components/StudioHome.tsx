@@ -37,85 +37,102 @@ export const StudioHome: React.FC<StudioHomeProps> = ({
 }) => {
   const templates = [
     {
-      id: 'card_rahul_priya',
-      title: 'Royal Maroon & Gold Wedding',
-      eventType: 'Traditional Wedding & Reception',
-      theme: THEME_PRESETS[0], // Royal Maroon
-      description: 'Grand royal wedding theme with ornamental arches, paisley dividers, mehndi/sangeet schedule, and countdown timer.',
-      tag: 'Most Popular',
-      sampleCard: DEFAULT_RAHUL_PRIYA_CARD,
-    },
-    {
-      id: 'card_aarav_birthday',
-      title: 'Emerald & Champagne Gala',
-      eventType: 'Milestone Birthday & Party',
-      theme: THEME_PRESETS[1], // Emerald
-      description: 'Sophisticated dark emerald aesthetic featuring cocktail hour, party itinerary, skyline views, and RSVP headcount tracking.',
-      tag: 'Trending',
-      sampleCard: DEFAULT_AARAV_CARD,
-    },
-    {
-      id: 'template_midnight',
-      title: 'Midnight Sapphire & Rose Gold',
-      eventType: 'Sangeet Night & Modern Reception',
-      theme: THEME_PRESETS[2], // Midnight Sapphire
-      description: 'Stunning deep celestial blue with rose gold accents, photo/video highlights, and interactive venue navigation.',
-      tag: 'Luxury',
+      id: 'template_udaipur_3d',
+      title: 'Udaipur Royal Jharokha 3D',
+      eventType: '3D Rajputana Royal Wedding',
+      theme: THEME_PRESETS[0], // Udaipur 3D
+      description: 'Grand palace courtyards with 3D carved marble jharokhas, floating golden marigold petals with parallax tilt, and 24K gold foil relief.',
+      tag: '3D Heritage',
       sampleCard: {
         ...DEFAULT_RAHUL_PRIYA_CARD,
-        id: 'template_midnight_demo',
-        title: 'Ananya & Kabir Sangeet & Reception',
+        id: 'template_udaipur_demo',
+        title: 'Rahul & Priya Royal Udaipur Wedding',
+        theme: THEME_PRESETS[0],
+      },
+    },
+    {
+      id: 'template_sheesh_mahal_3d',
+      title: 'Jaipur Sheesh Mahal 3D',
+      eventType: '3D Mirrored Palace & Sangeet',
+      theme: THEME_PRESETS[1], // Sheesh Mahal 3D
+      description: 'Faceted convex mirror mosaics, imperial emerald velvet drapes, romantic floating rose petals, and glittering chandeliers.',
+      tag: '3D Luxury',
+      sampleCard: {
+        ...DEFAULT_RAHUL_PRIYA_CARD,
+        id: 'template_sheesh_demo',
+        title: 'Aditi & Siddharth Mirrored Palace Wedding',
+        theme: THEME_PRESETS[1],
+        hosts: {
+          ...DEFAULT_RAHUL_PRIYA_CARD.hosts,
+          person1: 'Aditi',
+          person2: 'Siddharth',
+          tagline: 'invite you to celebrate their sacred union in the mirrored grandeur of Jaipur',
+        },
+      },
+    },
+    {
+      id: 'template_varanasi_aarti_3d',
+      title: 'Varanasi Sacred Aarti 3D',
+      eventType: '3D Sacred Ghats & Twilight Vows',
+      theme: THEME_PRESETS[2], // Varanasi 3D
+      description: 'Illuminated floating brass diyas, ceremonial temple flames, sacred saffron & vermilion glows, and swaying brass bells.',
+      tag: '3D Sacred',
+      sampleCard: {
+        ...DEFAULT_RAHUL_PRIYA_CARD,
+        id: 'template_varanasi_demo',
+        title: 'Meera & Dev Sacred Ganga Aarti Vows',
         theme: THEME_PRESETS[2],
         hosts: {
           ...DEFAULT_RAHUL_PRIYA_CARD.hosts,
-          person1: 'Ananya',
-          person2: 'Kabir',
-        }
+          person1: 'Meera',
+          person2: 'Dev',
+          tagline: 'request your blessings amidst the holy chants and glowing diyas of the Ganges',
+        },
       },
     },
     {
-      id: 'template_plum',
-      title: 'Imperial Plum & Gold',
-      eventType: 'Anniversary & Intimate Gathering',
-      theme: THEME_PRESETS[3], // Velvet Plum
-      description: 'Rich velvet plum palette designed for silver/golden anniversaries and curated ceremonies with warm love stories.',
-      tag: 'Elegant',
+      id: 'template_kashmir_bagh_3d',
+      title: 'Kashmir Shalimar Bagh 3D',
+      eventType: '3D Mughal Jali & Ethereal Garden',
+      theme: THEME_PRESETS[3], // Kashmir 3D
+      description: 'Carved ivory marble jali lattice, ethereal floating pink lotuses on tranquil fountains, and serene turquoise twilight.',
+      tag: '3D Ethereal',
       sampleCard: {
         ...DEFAULT_RAHUL_PRIYA_CARD,
-        id: 'template_plum_demo',
-        title: 'Sunita & Vikram 25th Silver Jubilee',
+        id: 'template_kashmir_demo',
+        title: 'Zoya & Farhan Mughal Garden Celebration',
         theme: THEME_PRESETS[3],
         hosts: {
           ...DEFAULT_RAHUL_PRIYA_CARD.hosts,
-          person1: 'Sunita',
-          person2: 'Vikram',
-          tagline: 'request your blessings as they celebrate 25 years of love',
-        }
+          person1: 'Zoya',
+          person2: 'Farhan',
+          tagline: 'invite you to join hands in an enchanted paradise of blossoms and fountains',
+        },
       },
-    }
+    },
   ];
 
   return (
     <div className="min-h-screen bg-[#FAF7F2] text-stone-900 font-sans flex flex-col">
       {/* Top Navbar */}
-      <header className="sticky top-0 z-40 bg-[#FAF7F2]/90 backdrop-blur-md border-b border-amber-900/10 px-4 sm:px-8 py-3.5 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-amber-700 to-amber-500 flex items-center justify-center text-white shadow-sm">
-            <Sparkles className="w-5 h-5 text-amber-200" />
+      <header className="sticky top-0 z-40 bg-[#FAF7F2]/90 backdrop-blur-md border-b border-amber-900/10 px-3 sm:px-8 py-2.5 sm:py-3.5 flex items-center justify-between">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-tr from-amber-700 to-amber-500 flex items-center justify-center text-white shadow-sm shrink-0">
+            <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-amber-200" />
           </div>
           <div>
-            <span className="font-serif font-bold text-lg text-stone-900 tracking-tight flex items-center gap-1.5">
-              Royal Invite <span className="text-amber-700 font-sans text-xs font-semibold uppercase tracking-wider px-1.5 py-0.5 bg-amber-100/80 rounded">Studio</span>
+            <span className="font-serif font-bold text-base sm:text-lg text-stone-900 tracking-tight flex items-center gap-1">
+              Royal Invite <span className="text-amber-700 font-sans text-[10px] sm:text-xs font-semibold uppercase tracking-wider px-1.5 py-0.5 bg-amber-100/80 rounded">Studio</span>
             </span>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex items-center gap-1.5 sm:gap-3">
           {currentUser ? (
             <button
               type="button"
               onClick={onGoToPortal}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-800 text-xs sm:text-sm font-medium transition-colors cursor-pointer border border-stone-200"
+              className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-800 text-xs sm:text-sm font-medium transition-colors cursor-pointer border border-stone-200"
             >
               <img
                 src={currentUser.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=100&q=80'}
@@ -128,7 +145,7 @@ export const StudioHome: React.FC<StudioHomeProps> = ({
             <button
               type="button"
               onClick={onOpenAuth}
-              className="text-xs sm:text-sm font-semibold text-stone-800 hover:text-amber-800 bg-white hover:bg-amber-50/60 border border-stone-300 hover:border-amber-500 transition-all px-3.5 py-1.5 rounded-full shadow-xs cursor-pointer flex items-center gap-1.5"
+              className="text-xs sm:text-sm font-semibold text-stone-800 hover:text-amber-800 bg-white hover:bg-amber-50/60 border border-stone-300 hover:border-amber-500 transition-all px-2.5 sm:px-3.5 py-1.5 rounded-full shadow-xs cursor-pointer flex items-center gap-1"
             >
               <span>Sign In</span>
             </button>
@@ -145,20 +162,22 @@ export const StudioHome: React.FC<StudioHomeProps> = ({
           <button
             type="button"
             onClick={() => onStartCreate(undefined, 'media')}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold text-amber-950 bg-amber-200 hover:bg-amber-300 border border-amber-400 transition-all cursor-pointer shadow-2xs"
+            className="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 rounded-full text-xs font-semibold text-amber-950 bg-amber-200 hover:bg-amber-300 border border-amber-400 transition-all cursor-pointer shadow-2xs"
             title="Upload your photos and create an invitation"
           >
             <ImagePlus className="w-3.5 h-3.5 text-amber-800" />
-            <span>Upload Photos</span>
+            <span className="hidden sm:inline">Upload Photos</span>
+            <span className="sm:hidden">Photos</span>
           </button>
           
           <button
             type="button"
             onClick={() => onStartCreate()}
-            className="inline-flex items-center gap-2 px-4 sm:px-5 py-2 rounded-full text-xs sm:text-sm font-semibold text-white bg-gradient-to-r from-amber-700 via-amber-800 to-stone-900 hover:from-amber-600 hover:to-black shadow-md hover:shadow-lg transition-all hover:scale-[1.02] cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 sm:px-5 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-semibold text-white bg-gradient-to-r from-amber-700 via-amber-800 to-stone-900 hover:from-amber-600 hover:to-black shadow-md hover:shadow-lg transition-all hover:scale-[1.02] cursor-pointer"
           >
-            <Sparkles className="w-4 h-4 text-amber-300" />
-            <span>Create Invitation</span>
+            <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-300" />
+            <span className="hidden sm:inline">Create Invitation</span>
+            <span className="sm:hidden">+ Create</span>
           </button>
         </div>
       </header>
@@ -253,32 +272,41 @@ export const StudioHome: React.FC<StudioHomeProps> = ({
                 key={tpl.id}
                 className="group relative rounded-2xl overflow-hidden border border-stone-200/90 bg-white shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col"
               >
-                {/* Visual Header Card Header with Theme Colors */}
+                {/* Visual Header Card Header with Theme Colors & 3D Backdrop */}
                 <div 
-                  className="p-6 text-white relative overflow-hidden"
+                  className="p-6 text-white relative overflow-hidden min-h-[180px] flex flex-col justify-between"
                   style={{ backgroundColor: tpl.theme.maroon }}
                 >
+                  {tpl.theme.bgImageUrl && (
+                    <img
+                      src={tpl.theme.bgImageUrl}
+                      alt={tpl.title}
+                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-stone-950/95 via-stone-950/50 to-stone-950/20 pointer-events-none" />
+
                   <div className="relative z-10">
                     <div className="flex items-center justify-between mb-3">
-                      <span className="text-[11px] uppercase tracking-wider font-semibold px-2.5 py-0.5 rounded-full bg-white/20 backdrop-blur-xs text-amber-200 border border-white/10">
+                      <span className="text-[11px] uppercase tracking-wider font-semibold px-2.5 py-0.5 rounded-full bg-black/40 backdrop-blur-xs text-amber-200 border border-amber-300/30">
                         {tpl.eventType}
                       </span>
-                      <span className="text-xs font-medium px-2.5 py-0.5 rounded-full bg-amber-400 text-stone-950 font-bold">
+                      <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-amber-400 text-stone-950 shadow-sm">
                         {tpl.tag}
                       </span>
                     </div>
 
-                    <h3 className="font-serif text-2xl font-bold text-amber-100">
+                    <h3 className="font-serif text-2xl font-bold text-amber-100 drop-shadow-md">
                       {tpl.title}
                     </h3>
 
                     {/* Color Swatch Dots */}
-                    <div className="flex items-center gap-1.5 mt-4">
-                      <div className="w-4 h-4 rounded-full border border-white/40 shadow-xs" style={{ backgroundColor: tpl.theme.maroon }} />
-                      <div className="w-4 h-4 rounded-full border border-white/40 shadow-xs" style={{ backgroundColor: tpl.theme.gold }} />
-                      <div className="w-4 h-4 rounded-full border border-white/40 shadow-xs" style={{ backgroundColor: tpl.theme.ivory }} />
-                      <div className="w-4 h-4 rounded-full border border-white/40 shadow-xs" style={{ backgroundColor: tpl.theme.teal }} />
-                      <span className="text-[11px] text-stone-300 ml-1.5">{tpl.theme.name}</span>
+                    <div className="flex items-center gap-1.5 mt-3">
+                      <div className="w-4 h-4 rounded-full border border-white/60 shadow-xs" style={{ backgroundColor: tpl.theme.maroon }} />
+                      <div className="w-4 h-4 rounded-full border border-white/60 shadow-xs" style={{ backgroundColor: tpl.theme.gold }} />
+                      <div className="w-4 h-4 rounded-full border border-white/60 shadow-xs" style={{ backgroundColor: tpl.theme.ivory }} />
+                      <div className="w-4 h-4 rounded-full border border-white/60 shadow-xs" style={{ backgroundColor: tpl.theme.teal }} />
+                      <span className="text-[11px] text-stone-200 ml-1.5 font-medium drop-shadow">{tpl.theme.name}</span>
                     </div>
                   </div>
 

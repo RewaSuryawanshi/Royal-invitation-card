@@ -17,6 +17,14 @@ export interface ColorTheme {
   teal: string;        // Rich contrast for venue / secondary sections
   blush: string;       // Soft rose / blush accent
   ink: string;         // Dark text color on light backgrounds
+  is3D?: boolean;
+  styleTag?: string;
+  description?: string;
+  bgImageUrl?: string;
+  archType?: 'udaipur-jharokha' | 'sheesh-mahal' | 'varanasi-mandap' | 'mughal-jali' | 'classic';
+  particlesType?: 'marigold' | 'mirrors' | 'diyas' | 'lotus' | 'sparkles';
+  glowColor?: string;
+  ornamentStyle?: 'rajputana' | 'sheesh' | 'temple' | 'mughal';
 }
 
 export interface MediaItem {

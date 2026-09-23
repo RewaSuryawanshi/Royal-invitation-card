@@ -1,7 +1,92 @@
 import { User, InvitationCard, ColorTheme, RSVPResponse } from '../types';
 import { FirebaseService } from './firebase';
 
+import udaipur3dBg from '../assets/images/theme_udaipur_3d_1790163837447.jpg';
+import sheeshMahal3dBg from '../assets/images/theme_sheesh_mahal_3d_1790163854032.jpg';
+import varanasiAarti3dBg from '../assets/images/theme_varanasi_aarti_3d_1790163869104.jpg';
+import kashmirBagh3dBg from '../assets/images/theme_kashmir_bagh_3d_1790163882628.jpg';
+
 export const THEME_PRESETS: ColorTheme[] = [
+  {
+    id: 'udaipur-royal-3d',
+    name: 'Udaipur Royal Jharokha 3D',
+    styleTag: 'Rajputana Heritage',
+    description: 'Opulent carved marble jharokhas, cascading marigold petals, and regal 24K gold foil relief.',
+    bgImageUrl: udaipur3dBg,
+    archType: 'udaipur-jharokha',
+    particlesType: 'marigold',
+    glowColor: '#E7C878',
+    ornamentStyle: 'rajputana',
+    is3D: true,
+    maroon: '#581020',
+    maroonDeep: '#340812',
+    gold: '#D4AF37',
+    goldLight: '#F7E7A9',
+    ivory: '#FDFBF7',
+    teal: '#16382E',
+    blush: '#F3C5C5',
+    ink: '#241016',
+  },
+  {
+    id: 'jaipur-sheesh-mahal-3d',
+    name: 'Jaipur Sheesh Mahal 3D',
+    styleTag: 'Mirrored Palace & Emerald',
+    description: 'Faceted convex mirror mosaics, imperial emerald velvet, and romantic rose petal drifts.',
+    bgImageUrl: sheeshMahal3dBg,
+    archType: 'sheesh-mahal',
+    particlesType: 'mirrors',
+    glowColor: '#80E5A7',
+    ornamentStyle: 'sheesh',
+    is3D: true,
+    maroon: '#0B2B1E',
+    maroonDeep: '#061911',
+    gold: '#CCA43B',
+    goldLight: '#E8D288',
+    ivory: '#F4F8F5',
+    teal: '#13402C',
+    blush: '#C2E5D0',
+    ink: '#0D2117',
+  },
+  {
+    id: 'varanasi-aarti-3d',
+    name: 'Varanasi Sacred Aarti 3D',
+    styleTag: 'Ghats Diya Twilight',
+    description: 'Ceremonial temple flames, glowing floating brass diyas, sacred vermilion & antique brass bells.',
+    bgImageUrl: varanasiAarti3dBg,
+    archType: 'varanasi-mandap',
+    particlesType: 'diyas',
+    glowColor: '#FFB347',
+    ornamentStyle: 'temple',
+    is3D: true,
+    maroon: '#50170A',
+    maroonDeep: '#2D0B03',
+    gold: '#E59500',
+    goldLight: '#FFD166',
+    ivory: '#FFFDF9',
+    teal: '#1F2A38',
+    blush: '#F4A261',
+    ink: '#2B1209',
+  },
+  {
+    id: 'kashmir-mughal-bagh-3d',
+    name: 'Kashmir Shalimar Bagh 3D',
+    styleTag: 'Ivory Jali & Lotus',
+    description: 'Carved marble jali lattice, ethereal floating pink lotuses, and twilight turquoise water fountains.',
+    bgImageUrl: kashmirBagh3dBg,
+    archType: 'mughal-jali',
+    particlesType: 'lotus',
+    glowColor: '#72DDF7',
+    ornamentStyle: 'mughal',
+    is3D: true,
+    maroon: '#113537',
+    maroonDeep: '#081D1E',
+    gold: '#D4AF37',
+    goldLight: '#F3E5AB',
+    ivory: '#F8FAF9',
+    teal: '#1B4D4F',
+    blush: '#F3C5D9',
+    ink: '#0B1E1F',
+  },
   {
     id: 'royal-maroon',
     name: 'Royal Maroon & Gold',
@@ -458,7 +543,27 @@ export const StorageService = {
     try {
       const stored = localStorage.getItem(STORAGE_KEYS.CARDS);
       if (stored) {
-        return JSON.parse(stored);
+        const parsed: InvitationCard[] = JSON.parse(stored);
+        // Hydrate themes with latest 3D metadata if available
+        return parsed.map((c) => {
+          const matchTheme = THEME_PRESETS.find((t) => t.id === c.theme?.id);
+          if (matchTheme) {
+            return {
+              ...c,
+              theme: {
+                ...matchTheme,
+                ...c.theme,
+                bgImageUrl: matchTheme.bgImageUrl,
+                is3D: matchTheme.is3D,
+                archType: matchTheme.archType,
+                particlesType: matchTheme.particlesType,
+                glowColor: matchTheme.glowColor,
+                ornamentStyle: matchTheme.ornamentStyle,
+              },
+            };
+          }
+          return c;
+        });
       }
     } catch {
       // ignore

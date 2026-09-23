@@ -13,6 +13,7 @@ import {
   FileText, 
   CheckCircle, 
   CheckCircle2,
+  Check,
   Share2,
   MapPin, 
   Users, 
@@ -254,39 +255,39 @@ export const CardEditor: React.FC<CardEditorProps> = ({
   return (
     <div className="min-h-screen bg-stone-100 flex flex-col">
       {/* Top Navbar */}
-      <header className="bg-white border-b border-stone-200 sticky top-0 z-30 px-4 sm:px-6 py-3.5 flex items-center justify-between">
-        <div className="flex items-center gap-3">
+      <header className="bg-white border-b border-stone-200 sticky top-0 z-30 px-3 sm:px-6 py-2.5 sm:py-3.5 flex items-center justify-between">
+        <div className="flex items-center gap-2 sm:gap-3">
           <button
             type="button"
             onClick={onCancel}
-            className="p-1.5 rounded-md hover:bg-stone-100 text-stone-600 transition-colors cursor-pointer"
+            className="p-1 sm:p-1.5 rounded-md hover:bg-stone-100 text-stone-600 transition-colors cursor-pointer shrink-0"
             title="Back to Dashboard"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div>
-            <div className="flex items-center gap-2">
-              <h2 className="font-serif text-lg font-bold text-stone-900 leading-tight">
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <h2 className="font-serif text-base sm:text-lg font-bold text-stone-900 leading-tight max-w-[120px] xs:max-w-[180px] sm:max-w-none truncate">
                 {card.title || 'Untitled Card'}
               </h2>
-              <span className={`text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider font-semibold ${
+              <span className={`text-[9px] sm:text-[10px] px-1.5 sm:px-2 py-0.5 rounded-full uppercase tracking-wider font-semibold ${
                 card.status === 'published' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
               }`}>
                 {card.status}
               </span>
             </div>
-            <p className="text-xs text-stone-500">
+            <p className="text-[11px] text-stone-500 hidden sm:block">
               Editing invitation details, dynamic media, and styling
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 sm:gap-2.5">
+        <div className="flex items-center gap-1.5 sm:gap-2.5">
           {/* Quick Upload Jump Button - Always visible on mobile & desktop */}
           <button
             type="button"
             onClick={() => setActiveTab('media')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer shadow-xs ${
+            className={`flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer shadow-xs ${
               activeTab === 'media'
                 ? 'bg-amber-600 text-white ring-2 ring-amber-400'
                 : 'bg-amber-100 text-amber-950 border border-amber-300 hover:bg-amber-200'
@@ -294,33 +295,35 @@ export const CardEditor: React.FC<CardEditorProps> = ({
             title="Jump directly to Photos & Videos Uploader"
           >
             <ImagePlus className="w-3.5 h-3.5 text-amber-700" />
-            <span>Upload Photos ({card.gallery?.items?.length || 0})</span>
+            <span className="hidden sm:inline">Upload Photos ({card.gallery?.items?.length || 0})</span>
+            <span className="sm:hidden">Photos ({card.gallery?.items?.length || 0})</span>
           </button>
 
           <button
             type="button"
             onClick={() => onPreviewFull(card)}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-stone-700 bg-stone-100 hover:bg-stone-200 rounded-lg transition-colors cursor-pointer"
+            className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 text-xs font-semibold text-stone-700 bg-stone-100 hover:bg-stone-200 rounded-lg transition-colors cursor-pointer"
+            title="Full Screen Preview"
           >
             <Maximize2 className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Fullscreen Preview</span>
+            <span className="hidden sm:inline">Preview</span>
           </button>
 
           {/* Direct Share Link button */}
           <button
             type="button"
             onClick={handleShareCard}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-stone-700 bg-white border border-stone-300 hover:bg-stone-50 rounded-lg transition-all cursor-pointer shadow-2xs"
+            className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 text-xs font-semibold text-stone-700 bg-white border border-stone-300 hover:bg-stone-50 rounded-lg transition-all cursor-pointer shadow-2xs"
             title="Copy Public Invitation Link"
           >
             {copiedShareLink ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> : <Share2 className="w-3.5 h-3.5 text-amber-600" />}
-            <span className="hidden sm:inline">{copiedShareLink ? 'Link Copied!' : 'Share'}</span>
+            <span className="hidden sm:inline">{copiedShareLink ? 'Copied!' : 'Share'}</span>
           </button>
 
           <button
             type="button"
             onClick={handleSave}
-            className="flex items-center gap-1.5 px-4 py-1.5 text-xs font-semibold text-white bg-amber-600 hover:bg-amber-700 rounded-lg transition-all shadow-sm hover:shadow-md cursor-pointer"
+            className="flex items-center gap-1.5 px-3 sm:px-4 py-1.5 text-xs font-semibold text-white bg-amber-600 hover:bg-amber-700 rounded-lg transition-all shadow-sm hover:shadow-md cursor-pointer"
           >
             {saveSuccess ? <CheckCircle className="w-4 h-4 text-white" /> : <Save className="w-4 h-4" />}
             <span>{saveSuccess ? 'Saved!' : 'Save'}</span>
@@ -703,28 +706,102 @@ export const CardEditor: React.FC<CardEditorProps> = ({
             {activeTab === 'theme' && (
               <div className="space-y-6">
                 <div>
-                  <h3 className="text-sm font-semibold uppercase tracking-wider text-stone-500 mb-2">
-                    Preset Royal Palettes
-                  </h3>
-                  <p className="text-xs text-stone-500 mb-4">
-                    Choose an exquisite royal color scheme matching your celebration's ambiance.
+                  <div className="flex items-center justify-between mb-1">
+                    <h3 className="text-sm font-bold uppercase tracking-wider text-amber-900 flex items-center gap-1.5">
+                      <Sparkles className="w-4 h-4 text-amber-600" />
+                      <span>3D Highly Aesthetic Indian Wedding Themes</span>
+                    </h3>
+                    <span className="text-[10px] bg-amber-100 text-amber-900 font-bold px-2 py-0.5 rounded-full border border-amber-300">
+                      4 Special 3D Presets
+                    </span>
+                  </div>
+                  <p className="text-xs text-stone-600 mb-4">
+                    Features multi-layer 3D tilt perspective, animated floating marigold petals/mirrors/diyas, and opulent royal backdrops.
                   </p>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {THEME_PRESETS.map((preset) => {
+                  {/* 3D Themes Grid */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 mb-6">
+                    {THEME_PRESETS.filter((p) => p.is3D).map((preset) => {
                       const isSelected = card.theme.id === preset.id;
                       return (
                         <div
                           key={preset.id}
                           onClick={() => setCard({ ...card, theme: preset })}
-                          className={`p-3.5 rounded-xl border-2 transition-all cursor-pointer ${
+                          className={`relative overflow-hidden rounded-xl border-2 transition-all cursor-pointer shadow-sm group ${
+                            isSelected
+                              ? 'border-amber-600 ring-2 ring-amber-400/40 bg-amber-50/70 shadow-md'
+                              : 'border-stone-200 hover:border-amber-400 bg-white hover:shadow-md'
+                          }`}
+                        >
+                          {/* Image backdrop thumbnail */}
+                          {preset.bgImageUrl && (
+                            <div className="relative h-28 w-full overflow-hidden bg-stone-900">
+                              <img
+                                src={preset.bgImageUrl}
+                                alt={preset.name}
+                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                              />
+                              <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/40 to-transparent" />
+                              <div className="absolute top-2 left-2 flex items-center gap-1">
+                                <span className="bg-amber-500/90 text-stone-950 text-[10px] font-bold px-1.5 py-0.5 rounded shadow">
+                                  3D Live
+                                </span>
+                                <span className="bg-black/60 text-amber-200 text-[10px] px-1.5 py-0.5 rounded backdrop-blur-xs">
+                                  {preset.styleTag}
+                                </span>
+                              </div>
+                              {isSelected && (
+                                <div className="absolute top-2 right-2 bg-emerald-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow flex items-center gap-1">
+                                  <Check className="w-3 h-3" /> Active
+                                </div>
+                              )}
+                              <div className="absolute bottom-2 left-2 right-2 flex items-end justify-between">
+                                <span className="font-serif font-semibold text-sm text-white drop-shadow">
+                                  {preset.name}
+                                </span>
+                              </div>
+                            </div>
+                          )}
+
+                          <div className="p-3">
+                            <p className="text-[11px] text-stone-600 leading-relaxed mb-2.5">
+                              {preset.description}
+                            </p>
+
+                            {/* Color bar preview */}
+                            <div className="flex h-5 rounded-md overflow-hidden border border-black/10 shadow-2xs">
+                              <div className="flex-1" style={{ backgroundColor: preset.maroon }} title="Primary Deep" />
+                              <div className="flex-1" style={{ backgroundColor: preset.gold }} title="Gold Accent" />
+                              <div className="flex-1" style={{ backgroundColor: preset.goldLight }} title="Gold Light" />
+                              <div className="flex-1" style={{ backgroundColor: preset.teal }} title="Contrast Teal" />
+                              <div className="flex-1" style={{ backgroundColor: preset.blush }} title="Blush" />
+                              <div className="flex-1" style={{ backgroundColor: preset.ivory }} title="Ivory Canvas" />
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Classic Themes */}
+                  <h4 className="text-xs font-semibold uppercase tracking-wider text-stone-500 mb-2">
+                    Classic Palettes
+                  </h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {THEME_PRESETS.filter((p) => !p.is3D).map((preset) => {
+                      const isSelected = card.theme.id === preset.id;
+                      return (
+                        <div
+                          key={preset.id}
+                          onClick={() => setCard({ ...card, theme: preset })}
+                          className={`p-3 rounded-xl border-2 transition-all cursor-pointer ${
                             isSelected
                               ? 'border-amber-600 bg-amber-50/50 shadow-sm'
                               : 'border-stone-200 hover:border-stone-400 bg-white'
                           }`}
                         >
                           <div className="flex items-center justify-between mb-2">
-                            <span className="font-serif font-semibold text-sm text-stone-900">
+                            <span className="font-serif font-semibold text-xs text-stone-900">
                               {preset.name}
                             </span>
                             {isSelected && (
@@ -734,7 +811,7 @@ export const CardEditor: React.FC<CardEditorProps> = ({
                             )}
                           </div>
                           {/* Color bar preview */}
-                          <div className="flex h-6 rounded-md overflow-hidden border border-black/10">
+                          <div className="flex h-5 rounded-md overflow-hidden border border-black/10">
                             <div className="flex-1" style={{ backgroundColor: preset.maroon }} title="Primary Deep" />
                             <div className="flex-1" style={{ backgroundColor: preset.gold }} title="Gold Accent" />
                             <div className="flex-1" style={{ backgroundColor: preset.goldLight }} title="Gold Light" />

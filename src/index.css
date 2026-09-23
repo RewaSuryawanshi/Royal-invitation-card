@@ -10,10 +10,37 @@
   .font-script {
     font-family: 'Alex Brush', cursive;
   }
+
+  /* Custom utility classes to hide scrollbars */
+  .no-scrollbar::-webkit-scrollbar,
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar,
+  .scrollbar-none {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
 }
 
 html {
   scroll-behavior: smooth;
+}
+
+/* Hide scrollbar on the page and all scrollable containers while maintaining full scrolling functionality */
+html,
+body,
+* {
+  -ms-overflow-style: none; /* Internet Explorer and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+/* Hide scrollbar for Chrome, Safari, iOS, and Opera */
+*::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+  background: transparent;
 }
 
 body {
@@ -21,3 +48,4 @@ body {
   font-family: 'Poppins', sans-serif;
   -webkit-font-smoothing: antialiased;
 }
+
